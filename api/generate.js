@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_STUDIO_API_KEY || process.env.API_KEY
 const genAI = new GoogleGenerativeAI(apiKey || '')
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
 function readBody(req) {
 	if (req.body) {
@@ -40,6 +40,11 @@ function extractJson(text) {
 	}
 
 	return JSON.parse(match[0])
+}
+
+function isQuotaError(error) {
+	const message = error instanceof Error ? error.message : String(error)
+	return /429|too many requests|quota|rate limit/i.test(message)
 }
 
 export const config = {
@@ -92,6 +97,13 @@ export default async function handler(req, res) {
 			fileName,
 		})
 	} catch (error) {
+		if (isQuotaError(error)) {
+			res.status(429).json({
+				error: 'Gemini devolvió un límite de cuota. Verifica que el proyecto correcto tenga Gemini 2.5 Flash habilitado y que el billing/cuota del proyecto sea suficiente.',
+			})
+			return
+		}
+
 		res.status(500).json({
 			error: error instanceof Error ? error.message : 'No se pudo generar el reporte',
 		})
