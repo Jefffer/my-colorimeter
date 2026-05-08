@@ -42,6 +42,11 @@ function extractJson(text) {
 	return JSON.parse(match[0])
 }
 
+function previewText(text, maxLength = 2000) {
+	const normalized = String(text || '').trim()
+	return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}\n... [truncated]` : normalized
+}
+
 function isQuotaError(error) {
 	const message = error instanceof Error ? error.message : String(error)
 	return /429|too many requests|quota|rate limit/i.test(message)
@@ -90,10 +95,21 @@ export default async function handler(req, res) {
 		])
 
 		const text = result.response.text()
-		const analysis = extractJson(text)
+		let analysis
+
+		try {
+			analysis = extractJson(text)
+		} catch (parseError) {
+			res.status(422).json({
+				error: parseError instanceof Error ? parseError.message : 'Gemini respondió algo que no es JSON válido.',
+				rawResponse: previewText(text),
+			})
+			return
+		}
 
 		res.status(200).json({
 			analysis,
+			rawResponse: previewText(text),
 			fileName,
 		})
 	} catch (error) {

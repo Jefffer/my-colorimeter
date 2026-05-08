@@ -143,6 +143,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [analysis, setAnalysis] = useState(null)
+  const [rawResponse, setRawResponse] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const fileInputRef = useRef(null)
@@ -172,6 +173,7 @@ function App() {
     setSelectedFile(file)
     setError('')
     setAnalysis(null)
+    setRawResponse('')
   }
 
   const openFilePicker = () => {
@@ -201,10 +203,12 @@ function App() {
       const payload = await response.json()
 
       if (!response.ok) {
+        setRawResponse(payload?.rawResponse || '')
         throw new Error(payload?.error || 'No fue posible generar el reporte')
       }
 
       setAnalysis(payload.analysis)
+      setRawResponse(payload.rawResponse || '')
     } catch (requestError) {
       setError(requestError.message || 'Hubo un problema al generar la imagen')
     } finally {
@@ -329,6 +333,16 @@ function App() {
                 <span>Al generar, verás una composición vertical lista para usar o compartir.</span>
               </div>
             )}
+          </div>
+
+          <div className="debug-panel">
+            <div className="panel-head compact">
+              <div>
+                <span className="panel-kicker">Debug</span>
+                <h2>Respuesta cruda de Gemini</h2>
+              </div>
+            </div>
+            <pre className="debug-output">{rawResponse || 'Aquí aparecerá el texto exacto devuelto por Gemini.'}</pre>
           </div>
 
           <div className="insight-grid">
