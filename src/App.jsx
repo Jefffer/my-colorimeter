@@ -249,15 +249,7 @@ function App() {
               Resultado tipo infografía
             </span>
           </div>
-        </div>
-
-        <div className="hero-badge">
-          <div>
-            <strong>Diseño minimalista</strong>
-            <span>Impactante, oscuro, editorial.</span>
-          </div>
-          <ArrowRight size={18} />
-        </div>
+        </div>        
       </section>
 
       <section className="workspace-grid">
