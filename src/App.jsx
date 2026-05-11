@@ -367,7 +367,7 @@ function App() {
         <div className="hero-copy">
           <div className="eyebrow">
             <Sparkles size={16} />
-            Gemini color analysis
+            ToneMap · Your personal color guide
           </div>
           <h1>Tu colorimetría, convertida en una guía de colores clara y premium.</h1>
           <p>
