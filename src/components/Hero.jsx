@@ -1,4 +1,4 @@
-import { ArrowDownRight, Camera, Palette, Sparkles } from 'lucide-react'
+import { ArrowDownRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export function Hero({ onCtaClick }) {
@@ -71,32 +71,27 @@ export function Hero({ onCtaClick }) {
 
       <div className="flex h-full w-full items-center justify-start">
         <div className="relative z-10 flex w-full flex-col justify-center px-6 py-12 sm:px-8 md:px-12 lg:px-16 xl:px-20">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-5 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-md">
-              <div className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-[linear-gradient(135deg,rgba(240,191,134,0.92),rgba(213,236,227,0.84))] text-slate-950 shadow-[0_12px_28px_rgba(240,191,134,0.18)]">
-                <Sparkles size={18} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.34em] text-accent/95">toneMap</span>
-                <span className="text-[12px] font-medium tracking-[0.12em] text-text/70">lectura cromática precisa</span>
-              </div>
-            </div>
+          <p className="absolute left-1/2 top-8 -translate-x-1/2 text-center text-l font-light uppercase tracking-[0.42em] text-text/68 sm:top-10">
+            Introducing ToneMap
+          </p>
 
-            <h1 className="mt-8 max-w-[11ch] text-[clamp(54px,8vw,96px)] font-semibold leading-[0.9] tracking-tighter text-text drop-shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
-              Tu <span className="bg-clip-text text-accent/85">colorimetría</span> convertida en una lectura elegante y útil.
+          <div className="max-w-3xl pt-12 sm:pt-14">
+
+            <h1 className="mt-5 max-w-[12ch] text-[clamp(40px,6vw,74px)] font-semibold leading-[0.92] tracking-tight text-text/92 drop-shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
+              <span className="text-accent/95">ToneMap</span> analiza tu foto y traduce tu colorimetria en una guia clara para vestir y combinar mejor
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-[1.55] text-text/88 drop-shadow-md">
-              <span className="font-semibold text-text">Sube una foto</span> y obtén una paleta clara, minimalista y fácil de guardar. Menos ruido, más criterio visual.
+              Detecta subtono, contraste y armonia personal en segundos
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <button
                 type="button"
                 onClick={onCtaClick}
-                className="group inline-flex items-center gap-3 rounded-full border border-white/12 bg-[linear-gradient(135deg,rgba(240,191,134,0.98),rgba(255,244,227,0.92),rgba(213,236,227,0.92))] px-7 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-slate-950 shadow-[0_20px_45px_rgba(240,191,134,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(240,191,134,0.32)] active:translate-y-0"
+                className="group inline-flex items-center gap-3 rounded-full border border-white/12 bg-[linear-gradient(135deg,rgba(240,191,134,0.98),rgba(255,244,227,0.92),rgba(213,236,227,0.92))] px-7 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-slate-950 shadow-[0_20px_45px_rgba(240,191,134,0.25)] transition-all duration-300 hover:shadow-[0_28px_60px_rgba(240,191,134,0.32)]"
               >
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-950/10 text-slate-950 transition-transform duration-300 group-hover:rotate-12">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-950/10 text-slate-950 transition-transform duration-300 group-hover:rotate-45">
                   <ArrowDownRight size={18} />
                 </span>
                 Subir mi foto
