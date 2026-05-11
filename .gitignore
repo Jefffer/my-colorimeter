@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 api/local-secrets.local
+api/debug-log.jsonl
 
 # Editor directories and files
 .vscode/*
