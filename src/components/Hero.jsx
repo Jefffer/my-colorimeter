@@ -2,35 +2,70 @@ import { ArrowDownRight, Camera, Palette, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export function Hero({ onCtaClick }) {
+  const rainbowTransition = { duration: 34, repeat: Infinity, ease: 'linear' }
+
   return (
     <section className="hero-section relative isolate h-screen w-full overflow-hidden">
-      {/* Crossfading color gradients (subtle, no moving blocks) */}
+      {/* Aurora-like animated layers: multiple soft, blurred color blobs that morph and move */}
       <div className="pointer-events-none absolute inset-0 -z-20">
+        {/* Intense rainbow sweep layer - full hero coverage with clockwise rotation only */}
         <motion.div
-          className="hero-gradient-layer"
+          className="aurora-rainbow"
           style={{
-            background: 'linear-gradient(90deg, #3d7d3d 0%, #1b9d9d 20%, #0d5f9f 40%, #001a3d 60%, #c41e3a 75%, #ff5a7e 100%)',
+            background: 'linear-gradient(120deg, #ff004d 0%, #ff7a00 14%, #ffd500 28%, #4cff00 42%, #00e5ff 58%, #3b4cff 72%, #ff00d7 86%, #ff004d 100%)',
           }}
-          initial={{ opacity: 1 }}
-          animate={{ opacity: [1, 1, 0, 0, 1] }}
-          transition={{ duration: 36, times: [0, 0.45, 0.55, 0.99, 1], repeat: Infinity, ease: 'easeInOut' }}
+          initial={{ rotate: 0 }}
+          animate={{ rotate: 360 }}
+          transition={rainbowTransition}
+        />
+        <motion.div
+          className="aurora-layer aurora-1"
+          style={{ background: 'radial-gradient(40% 60% at 20% 30%, rgba(255,90,140,0.55) 0%, rgba(255,90,140,0.12) 35%, transparent 65%)' }}
+          initial={{ opacity: 0.65 }}
+          animate={{ scale: [1, 1.08, 1], rotate: [0, 3, -2, 0], opacity: [0.65, 0.75, 0.68] }}
+          transition={{ duration: 34, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         />
 
         <motion.div
-          className="hero-gradient-layer"
-          style={{
-            background: 'linear-gradient(90deg, #ff7ea0 0%, #c44b6b 20%, #8b2b6b 40%, #2b4b8b 60%, #1b9d9d 80%, #3d7d3d 100%)',
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0, 1, 1, 0] }}
-          transition={{ duration: 36, times: [0, 0.45, 0.55, 0.99, 1], repeat: Infinity, ease: 'easeInOut' }}
+          className="aurora-layer aurora-2"
+          style={{ background: 'radial-gradient(50% 70% at 70% 40%, rgba(80,200,220,0.5) 0%, rgba(80,200,220,0.08) 40%, transparent 70%)' }}
+          initial={{ opacity: 0.58 }}
+          animate={{ scale: [1, 1.1, 1], rotate: [0, -4, 3, 0], opacity: [0.58, 0.72, 0.62] }}
+          transition={{ duration: 38, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+        />
+
+        <motion.div
+          className="aurora-layer aurora-3"
+          style={{ background: 'radial-gradient(60% 50% at 50% 70%, rgba(160,120,255,0.45) 0%, rgba(160,120,255,0.08) 45%, transparent 75%)' }}
+          initial={{ opacity: 0.48 }}
+          animate={{ scale: [1, 1.08, 1], rotate: [0, 5, -3, 0], opacity: [0.48, 0.66, 0.52] }}
+          transition={{ duration: 42, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+        />
+
+        <motion.div
+          className="aurora-layer aurora-4"
+          style={{ background: 'radial-gradient(50% 60% at 30% 80%, rgba(255,200,120,0.45) 0%, rgba(255,200,120,0.06) 40%, transparent 75%)' }}
+          initial={{ opacity: 0.42 }}
+          animate={{ scale: [1, 1.06, 1], rotate: [0, -3, 4, 0], opacity: [0.42, 0.58, 0.46] }}
+          transition={{ duration: 36, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+        />
+
+        <motion.div
+          className="aurora-layer aurora-5"
+          style={{ background: 'radial-gradient(40% 50% at 80% 20%, rgba(100,255,180,0.45) 0%, rgba(100,255,180,0.06) 40%, transparent 75%)' }}
+          initial={{ opacity: 0.46 }}
+          animate={{ scale: [1, 1.06, 1], rotate: [0, 3, -2, 0], opacity: [0.46, 0.62, 0.5] }}
+          transition={{ duration: 40, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         />
       </div>
 
       {/* Dynamic dark overlay - fixed left, animated right */}
-      <div className="pointer-events-none absolute inset-0 -z-10 animate-hero-overlay-shift" style={{
-        background: 'linear-gradient(90deg, rgba(12,13,16,0.92) 0%, rgba(12,13,16,0.85) 20%, rgba(12,13,16,0.65) 50%, rgba(12,13,16,0.25) 85%, rgba(12,13,16,0.1) 100%)',
-      }} />
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background: 'linear-gradient(90deg, rgba(12,13,16,0.92) 0%, rgba(12,13,16,0.85) 20%, rgba(12,13,16,0.65) 50%, rgba(12,13,16,0.25) 85%, rgba(12,13,16,0.1) 100%)',
+        }}
+      />
 
       {/* (Removed subtle light 'circles' to keep background purely color-based) */}
 
@@ -68,7 +103,7 @@ export function Hero({ onCtaClick }) {
             <button
               type="button"
               onClick={onCtaClick}
-              className="mt-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent via-[#f7dfb7] to-accent-soft px-6 py-4 text-base font-bold tracking-tight text-slate-950 shadow-[0_20px_40px_rgba(240,191,134,0.24)] transition-all duration-300 hover:shadow-[0_24px_48px_rgba(240,191,134,0.32)] hover:-translate-y-1 active:translate-y-0"
+              className="mt-10 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-accent via-[#f7dfb7] to-accent-soft px-6 py-4 text-base font-bold tracking-tight text-slate-950 shadow-[0_20px_40px_rgba(240,191,134,0.24)] transition-all duration-300 hover:shadow-[0_24px_48px_rgba(240,191,134,0.32)] hover:-translate-y-1 active:translate-y-0"
             >
               Subir mi foto
               <ArrowDownRight size={20} className="transition-transform group-hover:translate-x-1" />
