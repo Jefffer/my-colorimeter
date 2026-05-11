@@ -69,47 +69,39 @@ export function Hero({ onCtaClick }) {
         }}
       />
 
-      {/* (Removed subtle light 'circles' to keep background purely color-based) */}
-
       <div className="flex h-full w-full items-center justify-start">
-        <div className="relative z-10 flex flex-col justify-center px-6 py-12 sm:px-8 md:px-12 lg:px-16 xl:px-20">
-          <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-accent backdrop-blur-sm">
-              <Sparkles size={16} />
-              toneMap
+        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-12 sm:px-8 md:px-12 lg:px-16 xl:px-20">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-5 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-md">
+              <div className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-[linear-gradient(135deg,rgba(240,191,134,0.92),rgba(213,236,227,0.84))] text-slate-950 shadow-[0_12px_28px_rgba(240,191,134,0.18)]">
+                <Sparkles size={18} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.34em] text-accent/95">toneMap</span>
+                <span className="text-[12px] font-medium tracking-[0.12em] text-text/70">lectura cromática precisa</span>
+              </div>
             </div>
 
-            <h1 className="max-w-[14ch] text-[clamp(48px,7vw,88px)] font-bold leading-[0.88] tracking-[-0.08em] text-text drop-shadow-lg">
-              Tu colorimetría, convertida en una lectura elegante y útil.
+            <h1 className="mt-8 max-w-[11ch] text-[clamp(54px,8vw,96px)] font-semibold leading-[0.9] tracking-tighter text-text drop-shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
+              Tu <span className="bg-clip-text text-accent/85">colorimetría</span> convertida en una lectura elegante y útil.
             </h1>
 
-            <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-text/95 drop-shadow-md sm:text-lg">
-              Sube una foto. Obtén una paleta clara, minimalista y fácil de guardar. Menos ruido, más criterio visual.
+            <p className="mt-6 max-w-2xl text-lg leading-[1.55] text-text/88 drop-shadow-md">
+              <span className="font-semibold text-text">Sube una foto</span> y obtén una paleta clara, minimalista y fácil de guardar. Menos ruido, más criterio visual.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-text/95 backdrop-blur-sm transition-all hover:bg-white/15">
-                <Camera size={16} />
-                Una foto
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-text/95 backdrop-blur-sm transition-all hover:bg-white/15">
-                <Palette size={16} />
-                Paleta personal
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-text/95 backdrop-blur-sm transition-all hover:bg-white/15">
-                <Sparkles size={16} />
-                Lectura precisa
-              </span>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <button
+                type="button"
+                onClick={onCtaClick}
+                className="group inline-flex items-center gap-3 rounded-full border border-white/12 bg-[linear-gradient(135deg,rgba(240,191,134,0.98),rgba(255,244,227,0.92),rgba(213,236,227,0.92))] px-7 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-slate-950 shadow-[0_20px_45px_rgba(240,191,134,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(240,191,134,0.32)] active:translate-y-0"
+              >
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-950/10 text-slate-950 transition-transform duration-300 group-hover:rotate-12">
+                  <ArrowDownRight size={18} />
+                </span>
+                Subir mi foto
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={onCtaClick}
-              className="mt-10 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-accent via-[#f7dfb7] to-accent-soft px-6 py-4 text-base font-bold tracking-tight text-slate-950 shadow-[0_20px_40px_rgba(240,191,134,0.24)] transition-all duration-300 hover:shadow-[0_24px_48px_rgba(240,191,134,0.32)] hover:-translate-y-1 active:translate-y-0"
-            >
-              Subir mi foto
-              <ArrowDownRight size={20} className="transition-transform group-hover:translate-x-1" />
-            </button>
           </div>
         </div>
       </div>
