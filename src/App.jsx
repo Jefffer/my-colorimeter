@@ -141,8 +141,10 @@ function App() {
     setIsLoading(true)
     setError('')
 
+    console.info('toneMap: iniciando procesamiento de imagen')
     try {
       let imageForRequest = previewUrl
+      console.debug('toneMap: preparando imagen para envío')
       if (!imageForRequest && selectedFile) {
         imageForRequest = await new Promise((resolve, reject) => {
           const reader = new FileReader()
@@ -163,6 +165,7 @@ function App() {
         fileName: selectedFile?.name || 'restored-image',
       }
 
+      console.debug('toneMap: enviando imagen a /api/generate')
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -175,11 +178,16 @@ function App() {
       try {
         payload = await response.json()
       } catch {
+        console.warn('toneMap: respuesta inválida del servidor (no JSON)')
         setError('Respuesta inválida del servidor')
         return
       }
 
+      console.info(`toneMap: respuesta recibida, status=${response.status}`)
+      if (payload?.model) console.info(`toneMap: modelo usado = ${payload.model}`)
+
       if (!response.ok) {
+        console.warn(`toneMap: error desde Gemini: status=${response.status}`)
         setError(payload?.error || 'No fue posible generar el reporte')
         return
       }
