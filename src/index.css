@@ -91,12 +91,20 @@ img {
 }
 
 /* Rainbow sweep layer - intense chromatic movement */
-.aurora-rainbow {
+.aurora-rainbow-shell {
 	position: absolute;
 	inset: 0;
-	width: 100%;
-	height: 100%;
-	border-radius: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+}
+
+.aurora-rainbow {
+	position: absolute;
+	width: 142vmax;
+	height: 142vmax;
+	border-radius: 50%;
 	background-size: 100% 100%;
 	background-position: center;
 	background-repeat: no-repeat;

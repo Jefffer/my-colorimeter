@@ -8,16 +8,18 @@ export function Hero({ onCtaClick }) {
     <section className="hero-section relative isolate h-screen w-full overflow-hidden">
       {/* Aurora-like animated layers: multiple soft, blurred color blobs that morph and move */}
       <div className="pointer-events-none absolute inset-0 -z-20">
-        {/* Intense rainbow sweep layer - full hero coverage with clockwise rotation only */}
-        <motion.div
-          className="aurora-rainbow"
-          style={{
-            background: 'linear-gradient(120deg, #ff004d 0%, #ff7a00 14%, #ffd500 28%, #4cff00 42%, #00e5ff 58%, #3b4cff 72%, #ff00d7 86%, #ff004d 100%)',
-          }}
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={rainbowTransition}
-        />
+        <div className="aurora-rainbow-shell">
+          {/* Intense rainbow sweep layer - circular, centered, and sized to cover the hero diagonal */}
+          <motion.div
+            className="aurora-rainbow"
+            style={{
+              background: 'conic-gradient(from 90deg at 50% 50%, #ff004d, #ff7a00, #ffd500, #4cff00, #00e5ff, #3b4cff, #ff00d7, #ff004d)',
+            }}
+            initial={{ rotate: 0 }}
+            animate={{ rotate: 360 }}
+            transition={rainbowTransition}
+          />
+        </div>
         <motion.div
           className="aurora-layer aurora-1"
           style={{ background: 'radial-gradient(40% 60% at 20% 30%, rgba(255,90,140,0.55) 0%, rgba(255,90,140,0.12) 35%, transparent 65%)' }}
