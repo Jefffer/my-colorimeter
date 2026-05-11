@@ -1,11 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { ArrowRight, LoaderCircle, UploadCloud } from 'lucide-react'
 import { Hero } from './components/Hero'
 import { LoadingOverlay } from './components/LoadingOverlay'
-
-const STORAGE_KEYS = {
-  analysis: 'colorimeter.analysis',
-}
 
 const fallbackReport = {
   season: 'Tu lectura ToneMap',
@@ -90,18 +86,12 @@ function ColorList({ title, subtitle, items, accentClass, swatchClass }) {
 function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
-  const [analysis, setAnalysis] = useState(() => safeJsonParse(sessionStorage.getItem(STORAGE_KEYS.analysis) || '') || null)
+  const [analysis, setAnalysis] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const fileInputRef = useRef(null)
   const uploadSectionRef = useRef(null)
   const isProcessing = useRef(false)
-
-  useEffect(() => {
-    if (analysis) {
-      sessionStorage.setItem(STORAGE_KEYS.analysis, JSON.stringify(analysis))
-    }
-  }, [analysis])
 
   const report = getReportData(analysis)
 
@@ -128,7 +118,19 @@ function App() {
     setSelectedFile(file)
     setError('')
     setAnalysis(null)
-    sessionStorage.removeItem(STORAGE_KEYS.analysis)
+  }
+
+  const handleClear = () => {
+    setSelectedFile(null)
+    setPreviewUrl('')
+    setAnalysis(null)
+    setError('')
+    isProcessing.current = false
+    setIsLoading(false)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   const handleGenerate = async (event) => {
@@ -279,24 +281,35 @@ function App() {
               La mejor precisión se consigue con una imagen frontal, sin filtros fuertes y con fondo neutro.
             </p>
 
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={!previewUrl || isLoading}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-accent via-[#f7dfb7] to-accent-soft px-5 py-4 font-extrabold text-slate-950 shadow-[0_16px_36px_rgba(240,191,134,0.16)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {!isLoading ? (
-                <>
-                  Analizar paleta de colores
-                  <ArrowRight size={18} />
-                </>
-              ) : (
-                <>
-                  <LoaderCircle size={18} className="animate-spin" />
-                  Analizando...
-                </>
-              )}
-            </button>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={!previewUrl || isLoading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-accent via-[#f7dfb7] to-accent-soft px-5 py-4 font-extrabold text-slate-950 shadow-[0_16px_36px_rgba(240,191,134,0.16)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {!isLoading ? (
+                  <>
+                    Analizar paleta de colores
+                    <ArrowRight size={18} />
+                  </>
+                ) : (
+                  <>
+                    <LoaderCircle size={18} className="animate-spin" />
+                    Analizando...
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClear}
+                disabled={!previewUrl && !analysis && !error}
+                className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-4 font-semibold text-text transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Limpiar todo
+              </button>
+            </div>
 
             {error ? (
               <div className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
