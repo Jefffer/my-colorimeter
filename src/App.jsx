@@ -219,15 +219,18 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.14),_transparent_24%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.1),_transparent_20%),linear-gradient(180deg,_#17191d_0%,_#0c0d10_100%)] text-text">
+    <main className="text-text">
       <LoadingOverlay
         isVisible={isLoading}
         message="Analizando tu imagen..."
         submessage="ToneMap está procesando tu imagen para generar la paleta de colores personalizada."
       />
 
-      <div className="mx-auto flex w-full max-w-[1260px] flex-col gap-6 px-4 py-4 font-sans sm:px-5 lg:px-6 lg:py-6">
-        <Hero onCtaClick={scrollToUpload} />
+      {/* Hero fullscreen */}
+      <Hero onCtaClick={scrollToUpload} />
+
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.14),_transparent_24%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.1),_transparent_20%),linear-gradient(180deg,_#17191d_0%,_#0c0d10_100%)]">
+        <div className="mx-auto flex w-full max-w-[1260px] flex-col gap-6 px-4 py-4 font-sans sm:px-5 lg:px-6 lg:py-6">
 
         <section className="grid gap-6 xl:grid-cols-[0.96fr_1.04fr]">
           <article
@@ -389,6 +392,7 @@ function App() {
             </div>
           </article>
         </section>
+        </div>
       </div>
     </main>
   )
