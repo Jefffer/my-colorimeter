@@ -1,10 +1,53 @@
 /* global process */
-import { readFileSync } from 'node:fs'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { appendFileSync, existsSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { GoogleGenAI } from '@google/genai'
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_STUDIO_API_KEY || process.env.API_KEY
-const genAI = new GoogleGenerativeAI(apiKey || '')
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+const localSecretsFilePath = fileURLToPath(new URL('./local-secrets.local', import.meta.url))
+
+function readLocalApiKey() {
+	if (!existsSync(localSecretsFilePath)) return ''
+
+	try {
+		const rawContents = readFileSync(localSecretsFilePath, 'utf8').trim()
+		if (!rawContents) return ''
+
+		const parsed = JSON.parse(rawContents)
+		return String(parsed?.GEMINI_API_KEY || parsed?.apiKey || parsed?.geminiApiKey || '').trim()
+	} catch {
+		return ''
+	}
+}
+
+const apiKey =
+	process.env.GEMINI_API_KEY ||
+	process.env.GOOGLE_AI_STUDIO_API_KEY ||
+	process.env.API_KEY ||
+	readLocalApiKey()
+const genAI = new GoogleGenAI({ apiKey: apiKey || '' })
+const primaryModel = 'gemini-3-flash-preview'
+const fallbackModel = 'gemini-2.5-flash'
+
+function getLogFilePath() {
+	return process.env.GEMINI_DEBUG_LOG_FILE || ''
+}
+
+function redactImageValue(image) {
+	if (typeof image !== 'string') return image
+	return image.length > 120 ? `${image.slice(0, 120)}... [redacted]` : image
+}
+
+function writeDebugLog(entry) {
+	const logFilePath = getLogFilePath()
+	if (!logFilePath) return
+
+	const payload = {
+		timestamp: new Date().toISOString(),
+		...entry,
+	}
+
+	appendFileSync(logFilePath, `${JSON.stringify(payload)}\n`, 'utf8')
+}
 
 function readBody(req) {
 	if (req.body) {
@@ -31,25 +74,71 @@ function readBody(req) {
 	})
 }
 
-function extractJson(text) {
-	const trimmed = text.trim().replace(/^```json\s*/i, '').replace(/```$/i, '')
-	const match = trimmed.match(/\{[\s\S]*\}/)
-
-	if (!match) {
-		throw new Error('Gemini no devolvió JSON válido')
-	}
-
-	return JSON.parse(match[0])
-}
-
 function previewText(text, maxLength = 2000) {
 	const normalized = String(text || '').trim()
 	return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}\n... [truncated]` : normalized
 }
 
-function isQuotaError(error) {
-	const message = error instanceof Error ? error.message : String(error)
-	return /429|too many requests|quota|rate limit/i.test(message)
+function extractJson(text) {
+	const normalized = String(text || '').trim().replace(/^```json\s*/i, '').replace(/^```/i, '').replace(/```$/i, '')
+	const match = normalized.match(/\{[\s\S]*\}/)
+
+	if (!match) {
+		throw new Error('Gemini no devolvió un JSON válido')
+	}
+
+	return JSON.parse(match[0])
+}
+
+function validateReport(report) {
+	const best = Array.isArray(report?.best_options) ? report.best_options : []
+	const neutral = Array.isArray(report?.neutral_options) ? report.neutral_options : []
+	const avoid = Array.isArray(report?.avoid_options) ? report.avoid_options : []
+
+	if (best.length !== 6 || neutral.length !== 4 || avoid.length !== 3) {
+		throw new Error('Gemini no devolvió exactamente 6 colores mejores, 4 neutrales y 3 a evitar')
+	}
+
+	return {
+		season: String(report?.season || '').trim(),
+		undertone: String(report?.undertone || '').trim(),
+		summary: String(report?.summary || '').trim(),
+		why_this_works: String(report?.why_this_works || '').trim(),
+		best_options: best.map((item) => ({
+			name: String(item?.name || '').trim(),
+			hex: String(item?.hex || '').trim(),
+			reason: String(item?.reason || '').trim(),
+		})),
+		neutral_options: neutral.map((item) => ({
+			name: String(item?.name || '').trim(),
+			hex: String(item?.hex || '').trim(),
+			reason: String(item?.reason || '').trim(),
+		})),
+		avoid_options: avoid.map((item) => ({
+			name: String(item?.name || '').trim(),
+			hex: String(item?.hex || '').trim(),
+			reason: String(item?.reason || '').trim(),
+		})),
+	}
+}
+
+async function generateWithModel(model, prompt, base64Image, mimeType) {
+	return genAI.models.generateContent({
+		model,
+		contents: [
+			prompt,
+			{
+				inlineData: {
+					data: base64Image,
+					mimeType,
+				},
+			},
+		],
+		config: {
+			responseMimeType: 'application/json',
+			temperature: 0.2,
+		},
+	})
 }
 
 export const config = {
@@ -75,53 +164,74 @@ export default async function handler(req, res) {
 	try {
 		const body = await readBody(req)
 		const { image, mimeType = 'image/jpeg', fileName = 'image' } = body || {}
+		writeDebugLog({
+			type: 'request',
+			method: req.method,
+			fileName,
+			mimeType,
+			imageLength: typeof image === 'string' ? image.length : 0,
+			imagePreview: redactImageValue(image),
+		})
 
 		if (!image) {
-			res.status(400).json({ error: 'Debes enviar una imagen en base64 o data URL.' })
+			const payload = { error: 'Debes enviar una imagen en base64 o data URL.' }
+			writeDebugLog({ type: 'response', status: 400, payload })
+			res.status(400).json(payload)
 			return
 		}
 
 		const base64Image = image.includes(',') ? image.split(',')[1] : image
 		const prompt = readFileSync(new URL('./prompt.txt', import.meta.url), 'utf8')
 
-		const result = await model.generateContent([
-			prompt,
-			{
-				inlineData: {
-					data: base64Image,
-					mimeType,
-				},
-			},
-		])
+		let response
+		let usedModel = primaryModel
+		try {
+			response = await generateWithModel(primaryModel, prompt, base64Image, mimeType)
+		} catch (geminiError) {
+			try {
+				response = await generateWithModel(fallbackModel, prompt, base64Image, mimeType)
+				usedModel = fallbackModel
+			} catch (fallbackError) {
+				const rawResponse = fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+				const payload = {
+					error: 'No se pudo generar el reporte con Gemini 3 Flash Preview ni con Gemini 2.5 Flash.',
+					rawResponse: previewText(rawResponse),
+				}
+				writeDebugLog({ type: 'response', status: 500, model: fallbackModel, payload, primaryError: previewText(geminiError instanceof Error ? geminiError.message : String(geminiError)) })
+				res.status(500).json(payload)
+				return
+			}
+		}
 
-		const text = result.response.text()
-		let analysis
+		const rawResponse = previewText(response?.text || '')
+		let report
 
 		try {
-			analysis = extractJson(text)
+			report = validateReport(extractJson(response?.text || ''))
 		} catch (parseError) {
-			res.status(422).json({
+			const payload = {
 				error: parseError instanceof Error ? parseError.message : 'Gemini respondió algo que no es JSON válido.',
-				rawResponse: previewText(text),
-			})
+				rawResponse,
+			}
+			writeDebugLog({ type: 'response', status: 422, payload })
+			res.status(422).json(payload)
 			return
 		}
 
-		res.status(200).json({
-			analysis,
-			rawResponse: previewText(text),
+		const payload = {
+			report,
+			rawResponse,
 			fileName,
-		})
-	} catch (error) {
-		if (isQuotaError(error)) {
-			res.status(429).json({
-				error: 'Gemini devolvió un límite de cuota. Verifica que el proyecto correcto tenga Gemini 2.5 Flash habilitado y que el billing/cuota del proyecto sea suficiente.',
-			})
-			return
+			model: usedModel,
 		}
-
-		res.status(500).json({
+		writeDebugLog({ type: 'response', status: 200, model: usedModel, payload })
+		res.status(200).json(payload)
+	} catch (error) {
+		const payload = {
 			error: error instanceof Error ? error.message : 'No se pudo generar el reporte',
-		})
+			rawResponse: previewText(error instanceof Error ? error.message : String(error)),
+		}
+		writeDebugLog({ type: 'response', status: 500, payload })
+		res.status(500).json(payload)
 	}
 }

@@ -6,5 +6,18 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [
     tailwindcss(),
-    react()],
+    react()
+  ],
+  server: {
+    watch: {
+      ignored: ['**/api/debug-log.jsonl'],
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        logLevel: 'info',
+      },
+    },
+  },
 })

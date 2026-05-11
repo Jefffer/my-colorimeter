@@ -2,13 +2,20 @@ import { useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
   Camera,
-  ImageDown,
   LoaderCircle,
   Palette,
   Sparkles,
   UploadCloud,
 } from 'lucide-react'
+import { LoadingOverlay } from './components/LoadingOverlay'
 import './App.css'
+
+const STORAGE_KEYS = {
+  previewUrl: 'colorimeter.previewUrl',
+  analysis: 'colorimeter.analysis',
+  rawResponse: 'colorimeter.rawResponse',
+  debugState: 'colorimeter.debugState',
+}
 
 const fallbackPalette = [
   { name: 'Marfil', hex: '#F3E7D7', role: 'Base suave' },
@@ -19,115 +26,144 @@ const fallbackPalette = [
 
 const fallbackAvoid = ['Neones fríos', 'Grises ceniza', 'Blancos muy puros', 'Negros duros']
 
-function escapeXml(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;')
+const fallbackReport = {
+  season: 'Tu paleta sugerida',
+  undertone: 'pendiente',
+  summary: 'Gemini devolverá aquí una guía clara de colores adaptada a tu imagen.',
+  why_this_works: 'La combinación elegida busca equilibrar tu contraste natural y suavizar o potenciar tus rasgos.',
+  best_options: fallbackPalette.map((item) => ({
+    name: item.name,
+    hex: item.hex,
+    reason: item.role,
+  })),
+  neutral_options: [
+    { name: 'Beige arena', hex: '#D8C7B0', reason: 'Funciona como base limpia y versátil.' },
+    { name: 'Topo suave', hex: '#9A8578', reason: 'Mantiene armonía sin apagar el rostro.' },
+    { name: 'Café latte', hex: '#B59B84', reason: 'Aporta calidez sin demasiada saturación.' },
+    { name: 'Gris piedra', hex: '#8E8B87', reason: 'Neutro estable para combinar con todo.' },
+  ],
+  avoid_options: fallbackAvoid.map((name, index) => ({
+    name,
+    hex: ['#8AA7C5', '#C7C7C7', '#F8F8F8'][index] || '#222222',
+    reason: 'Puede restar equilibrio o endurecer el conjunto.',
+  })),
 }
 
-function normalizeList(input, fallback) {
-  if (Array.isArray(input) && input.length > 0) return input
-  return fallback
+function getReportData(analysis) {
+  return analysis || fallbackReport
 }
 
-function dataUrlToSvg(title, analysis) {
-  const palette = normalizeList(analysis.palette, fallbackPalette)
-  const avoid = normalizeList(analysis.avoid_colors, fallbackAvoid)
-  const bestColors = normalizeList(analysis.best_colors, ['Marfil tostado', 'Rosa empolvado', 'Verde salvia'])
+function normalizeToneList(input, fallback) {
+  if (!Array.isArray(input) || input.length === 0) return fallback
+  return input
+}
 
-  const paletteRows = palette.slice(0, 4).map((item, index) => {
-    const color = typeof item === 'string' ? item : item.hex || '#CBB8A2'
-    const label = typeof item === 'string' ? item : item.name || `Color ${index + 1}`
-    const role = typeof item === 'string' ? '' : item.role || ''
+function cleanHex(value, fallback = '#CBB8A2') {
+  const normalized = String(value || '').trim()
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized) ? normalized : fallback
+}
 
-    return `
-      <g transform="translate(0, ${index * 112})">
-        <rect x="0" y="0" width="860" height="96" rx="28" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" />
-        <rect x="22" y="22" width="52" height="52" rx="18" fill="${escapeXml(color)}" />
-        <text x="96" y="42" fill="#F6F1EA" font-size="25" font-weight="700" font-family="Inter, Arial, sans-serif">${escapeXml(label)}</text>
-        <text x="96" y="70" fill="#B9B1A6" font-size="18" font-weight="500" font-family="Inter, Arial, sans-serif">${escapeXml(role)}</text>
-        <text x="780" y="52" text-anchor="end" fill="#D9D1C5" font-size="18" font-weight="600" font-family="JetBrains Mono, Consolas, monospace">${escapeXml(color)}</text>
-      </g>
-    `
-  }).join('')
+function safeJsonParse(input) {
+  try {
+    return JSON.parse(input)
+  } catch {
+    return null
+  }
+}
 
-  const avoidRows = avoid.slice(0, 4).map((item, index) => {
-    const label = typeof item === 'string' ? item : item.name || item.hex || `Evita ${index + 1}`
-    return `
-      <g transform="translate(${index % 2 === 0 ? 0 : 288}, ${Math.floor(index / 2) * 82})">
-        <rect x="0" y="0" width="260" height="64" rx="22" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.1)" />
-        <circle cx="26" cy="32" r="7" fill="#FF7B7B" />
-        <text x="46" y="38" fill="#F4EBE0" font-size="18" font-weight="600" font-family="Inter, Arial, sans-serif">${escapeXml(label)}</text>
-      </g>
-    `
-  }).join('')
+function mapColorArrayToOptions(colors = [], label = 'Color') {
+  return colors
+    .map((item, index) => {
+      if (typeof item === 'string') {
+        return {
+          name: `${label} ${index + 1}`,
+          hex: cleanHex(item),
+          reason: 'Detectado por Gemini para tu armonía cromática.',
+        }
+      }
 
-  const bestRows = bestColors.slice(0, 4).map((item, index) => {
-    const label = typeof item === 'string' ? item : item.name || item.hex || `Color ${index + 1}`
-    return `
-      <g transform="translate(${index % 2 === 0 ? 0 : 288}, ${Math.floor(index / 2) * 82})">
-        <rect x="0" y="0" width="260" height="64" rx="22" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.1)" />
-        <circle cx="26" cy="32" r="7" fill="#7CF2C5" />
-        <text x="46" y="38" fill="#F4EBE0" font-size="18" font-weight="600" font-family="Inter, Arial, sans-serif">${escapeXml(label)}</text>
-      </g>
-    `
-  }).join('')
+      return {
+        name: item?.name || `${label} ${index + 1}`,
+        hex: cleanHex(item?.hex),
+        reason: item?.reason || 'Detectado por Gemini para tu armonía cromática.',
+      }
+    })
+    .filter((item) => item.hex)
+}
 
-  const summary = escapeXml(
-    analysis.summary ||
-      'Análisis equilibrado con una paleta de contraste medio y tonos suaves que respetan la armonía natural del rostro.',
+function mapLegacyImageGenerationToReport(legacy) {
+  const sections = Array.isArray(legacy?.elements)
+    ? legacy.elements.filter((item) => item?.type === 'color_swatch_section')
+    : []
+
+  const bestSection = sections.find((item) => String(item?.label || '').toUpperCase().includes('BEST'))
+  const neutralSection = sections.find((item) => String(item?.label || '').toUpperCase().includes('NEUTRAL'))
+  const avoidSection = sections.find((item) => String(item?.label || '').toUpperCase().includes('AVOID'))
+
+  const best_options = mapColorArrayToOptions(bestSection?.colors || [], 'Mejor opción').slice(0, 6)
+  const neutral_options = mapColorArrayToOptions(neutralSection?.colors || [], 'Neutro').slice(0, 4)
+  const avoid_options = mapColorArrayToOptions(avoidSection?.colors || [], 'Evitar').slice(0, 3)
+
+  if (best_options.length === 0 && neutral_options.length === 0 && avoid_options.length === 0) {
+    return null
+  }
+
+  return {
+    season: 'Lectura cromática',
+    undertone: 'Detectado por Gemini',
+    summary: 'Gemini devolvió un esquema visual legacy. Se convirtió automáticamente a reporte de paleta.',
+    why_this_works: 'Este reporte se generó a partir de la estructura de secciones de color devuelta por Gemini.',
+    best_options,
+    neutral_options,
+    avoid_options,
+  }
+}
+
+function normalizeApiReport(payload, rawResponse) {
+  const directReport = payload?.report
+  if (directReport && Array.isArray(directReport.best_options)) {
+    return directReport
+  }
+
+  const analysisReport = payload?.analysis
+  if (analysisReport && Array.isArray(analysisReport.best_options)) {
+    return analysisReport
+  }
+
+  const legacyReport = mapLegacyImageGenerationToReport(payload?.analysis?.image_generation)
+  if (legacyReport) {
+    return legacyReport
+  }
+
+  const parsedRaw = safeJsonParse(rawResponse)
+  if (!parsedRaw) {
+    return null
+  }
+
+  if (Array.isArray(parsedRaw.best_options)) {
+    return parsedRaw
+  }
+
+  const parsedLegacy = mapLegacyImageGenerationToReport(parsedRaw?.image_generation)
+  if (parsedLegacy) {
+    return parsedLegacy
+  }
+
+  return null
+}
+
+function ToneCard({ tone, variant = 'best' }) {
+  const borderClass = variant === 'avoid' ? 'tone-card avoid' : variant === 'neutral' ? 'tone-card neutral' : 'tone-card best'
+  return (
+    <article className={borderClass}>
+      <div className="tone-swatch" style={{ backgroundColor: cleanHex(tone.hex) }} />
+      <div className="tone-copy">
+        <strong>{tone.name}</strong>
+        <span>{cleanHex(tone.hex)}</span>
+        <p>{tone.reason}</p>
+      </div>
+    </article>
   )
-
-  const season = escapeXml(analysis.season || title || 'Informe cromático')
-  const undertone = escapeXml(analysis.undertone || 'neutral')
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1800" viewBox="0 0 1400 1800" fill="none">
-      <defs>
-        <linearGradient id="bg" x1="160" y1="120" x2="1280" y2="1680" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#1A1412" />
-          <stop offset="0.52" stop-color="#231A19" />
-          <stop offset="1" stop-color="#110F12" />
-        </linearGradient>
-        <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(260 220) rotate(45) scale(380 420)">
-          <stop stop-color="#E7B57C" stop-opacity="0.34" />
-          <stop offset="1" stop-color="#E7B57C" stop-opacity="0" />
-        </radialGradient>
-        <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1160 320) rotate(120) scale(420 500)">
-          <stop stop-color="#7ACFBE" stop-opacity="0.18" />
-          <stop offset="1" stop-color="#7ACFBE" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="1400" height="1800" rx="60" fill="url(#bg)" />
-      <circle cx="260" cy="220" r="380" fill="url(#glow1)" />
-      <circle cx="1160" cy="320" r="460" fill="url(#glow2)" />
-      <rect x="70" y="70" width="1260" height="1660" rx="44" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" />
-
-      <text x="110" y="155" fill="#F8F0E4" font-size="24" letter-spacing="3" font-weight="700" font-family="Inter, Arial, sans-serif">COLORIMETER / GEMINI REPORT</text>
-      <text x="110" y="250" fill="#FFF7EF" font-size="66" font-weight="800" font-family="Inter, Arial, sans-serif">${season}</text>
-      <text x="110" y="302" fill="#DCCFBE" font-size="24" font-weight="500" font-family="Inter, Arial, sans-serif">Tono detectado: ${undertone}</text>
-
-      <rect x="110" y="360" width="1180" height="240" rx="36" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" />
-      <text x="150" y="430" fill="#B9F1DC" font-size="20" font-weight="700" letter-spacing="2" font-family="Inter, Arial, sans-serif">SUMMARY</text>
-      <text x="150" y="488" fill="#FAF4EC" font-size="32" font-weight="600" font-family="Inter, Arial, sans-serif">${summary.slice(0, 1100)}</text>
-
-      <text x="110" y="690" fill="#F9EFE4" font-size="28" font-weight="700" font-family="Inter, Arial, sans-serif">Paleta recomendada</text>
-      <g transform="translate(110 730)">${paletteRows}</g>
-
-      <text x="110" y="1236" fill="#F9EFE4" font-size="28" font-weight="700" font-family="Inter, Arial, sans-serif">Colores a evitar</text>
-      <g transform="translate(110 1276)">${avoidRows}</g>
-
-      <text x="760" y="1236" fill="#F9EFE4" font-size="28" font-weight="700" font-family="Inter, Arial, sans-serif">Mejores encajes</text>
-      <g transform="translate(760 1276)">${bestRows}</g>
-
-      <rect x="110" y="1600" width="1180" height="120" rx="30" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" />
-      <text x="150" y="1650" fill="#F8F0E4" font-size="20" font-weight="700" letter-spacing="2" font-family="Inter, Arial, sans-serif">NEXT STEP</text>
-      <text x="150" y="1690" fill="#DCCFBE" font-size="24" font-weight="500" font-family="Inter, Arial, sans-serif">Usa estas bases para construir outfits, maquillaje y fondo fotográfico coherentes.</text>
-    </svg>
-  `)}`
 }
 
 function fileToDataUrl(file) {
@@ -141,102 +177,202 @@ function fileToDataUrl(file) {
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState('')
-  const [analysis, setAnalysis] = useState(null)
-  const [rawResponse, setRawResponse] = useState('')
+  const [previewUrl, setPreviewUrl] = useState('') // NO persiste en sessionStorage - solo en RAM
+  const [analysis, setAnalysis] = useState(() => safeJsonParse(sessionStorage.getItem(STORAGE_KEYS.analysis) || '') || null)
+  const [rawResponse, setRawResponse] = useState(() => sessionStorage.getItem(STORAGE_KEYS.rawResponse) || '')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [debugState, setDebugState] = useState(() => sessionStorage.getItem(STORAGE_KEYS.debugState) || 'Sin respuesta todavía.')
   const fileInputRef = useRef(null)
-  const previewUrlRef = useRef('')
+  const isProcessing = useRef(false) // Protección contra doble-click
+
+  // NO persistir previewUrl - solo guardar análisis y rawResponse
 
   useEffect(() => {
-    return () => {
-      if (previewUrlRef.current) {
-        URL.revokeObjectURL(previewUrlRef.current)
-      }
+    if (analysis) {
+      sessionStorage.setItem(STORAGE_KEYS.analysis, JSON.stringify(analysis))
     }
-  }, [])
+  }, [analysis])
 
-  const generatedImage = analysis ? dataUrlToSvg(analysis.season || 'Informe cromático', analysis) : ''
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEYS.rawResponse, rawResponse || '')
+  }, [rawResponse])
 
-  const handleFileSelect = (event) => {
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEYS.debugState, debugState || '')
+  }, [debugState])
+
+  const report = getReportData(analysis)
+  const bestOptions = normalizeToneList(report.best_options, fallbackReport.best_options)
+  const neutralOptions = normalizeToneList(report.neutral_options, fallbackReport.neutral_options)
+  const avoidOptions = normalizeToneList(report.avoid_options, fallbackReport.avoid_options)
+
+  const handleFileSelect = async (event) => {
+    event?.preventDefault()
     const [file] = event.target.files || []
     if (!file) return
 
-    if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current)
-    }
-
-    const nextPreviewUrl = URL.createObjectURL(file)
-    previewUrlRef.current = nextPreviewUrl
+    const nextPreviewUrl = await fileToDataUrl(file)
     setPreviewUrl(nextPreviewUrl)
     setSelectedFile(file)
     setError('')
     setAnalysis(null)
     setRawResponse('')
+    setDebugState('Imagen cargada. Lista para generar.')
+    sessionStorage.removeItem(STORAGE_KEYS.analysis)
   }
 
-  const openFilePicker = () => {
+  const openFilePicker = (event) => {
+    event?.preventDefault()
     fileInputRef.current?.click()
   }
 
-  const handleGenerate = async () => {
-    if (!selectedFile || isLoading) return
-
+  const handleGenerate = async (event) => {
     try {
+      // Prevenir comportamiento por defecto del navegador
+      if (event) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      // Protección contra doble-click
+      if (isLoading || isProcessing.current) {
+        console.log('⚠️ Ya se está procesando, ignorando click')
+        return
+      }
+
+      // Marcar como procesando INMEDIATAMENTE
+      isProcessing.current = true
+      console.log('🎨 handleGenerate: Iniciando proceso')
+
+      // Mostrar loading ANTES de hacer cualquier operación async
       setIsLoading(true)
       setError('')
+      setDebugState('⏳ Preparando imagen...')
+      setRawResponse('Procesando...')
 
-      const imageDataUrl = await fileToDataUrl(selectedFile)
+      // Ahora preparar la imagen
+      let imageForRequest = previewUrl
+      if (!imageForRequest && selectedFile) {
+        console.log('🎨 handleGenerate: Convirtiendo archivo a data URL...')
+        imageForRequest = await fileToDataUrl(selectedFile)
+      }
+
+      if (!imageForRequest) {
+        console.error('🎨 handleGenerate: No image selected')
+        setError('Debes seleccionar una imagen antes de generar el reporte')
+        setIsLoading(false)
+        isProcessing.current = false
+        return
+      }
+
+      console.log('🎨 handleGenerate: Preparando solicitud')
+      const requestBody = {
+        image: imageForRequest,
+        mimeType: selectedFile?.type || 'image/jpeg',
+        fileName: selectedFile?.name || 'restored-image',
+      }
+      console.log('🎨 handleGenerate: Body size =', new Blob([JSON.stringify(requestBody)]).size, 'bytes')
+
+      console.log('🎨 handleGenerate: Enviando a /api/generate ...')
+      setDebugState('⏳ Enviando imagen a Gemini (30 segundos máximo)...')
+
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          image: imageDataUrl,
-          mimeType: selectedFile.type || 'image/jpeg',
-          fileName: selectedFile.name,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
-      const payload = await response.json()
+      console.log('🎨 handleGenerate: Response received, status =', response.status)
+      setDebugState(`⏳ Recibida respuesta con estado ${response.status}... analizando`)
 
-      if (!response.ok) {
-        setRawResponse(payload?.rawResponse || '')
-        throw new Error(payload?.error || 'No fue posible generar el reporte')
+      let payload = {}
+      try {
+        payload = await response.json()
+        console.log('🎨 handleGenerate: JSON parsed successfully')
+      } catch (jsonError) {
+        console.error('🎨 handleGenerate: JSON Parse Error =', jsonError.message)
+        setDebugState(`❌ Estado ${response.status}: Error al parsear respuesta del servidor`)
+        setRawResponse(`Error: No se pudo leer la respuesta.\n\nDetalles: ${jsonError.message}`)
+        setError('Respuesta inválida del servidor')
+        setIsLoading(false)
+        isProcessing.current = false
+        return
       }
 
-      setAnalysis(payload.analysis)
-      setRawResponse(payload.rawResponse || '')
-    } catch (requestError) {
-      setError(requestError.message || 'Hubo un problema al generar la imagen')
-    } finally {
+      // SIEMPRE mostrar rawResponse si existe
+      if (payload?.rawResponse) {
+        console.log('🎨 handleGenerate: rawResponse present, length =', payload.rawResponse.length)
+        setRawResponse(payload.rawResponse)
+      }
+
+      const normalized = normalizeApiReport(payload, payload?.rawResponse || '')
+      console.log('🎨 handleGenerate: normalized report =', normalized ? 'YES' : 'NO')
+
+      if (!response.ok) {
+        console.error('🎨 handleGenerate: Response NOT OK. payload.error =', payload?.error)
+        setDebugState(`❌ Estado ${response.status}: ${payload?.error || 'respuesta inválida'}`)
+        setError(payload?.error || 'No fue posible generar el reporte')
+        setIsLoading(false)
+        isProcessing.current = false
+        return
+      }
+
+      if (!normalized) {
+        console.warn('🎨 handleGenerate: Response OK but normalized is null')
+        setDebugState(`⚠️ Estado ${response.status}: respuesta sin estructura esperada`)
+        setError('Gemini respondió, pero en un formato no mapeable. Revisa el JSON crudo en depuración.')
+        setIsLoading(false)
+        isProcessing.current = false
+        return
+      }
+
+      // SUCCESS: actualizar analysis con los datos normalizados
+      console.log('🎨 handleGenerate: Setting analysis state with normalized data')
+      setAnalysis(normalized)
+      console.log('🎨 handleGenerate: SUCCESS! Setting final debug state')
+      setDebugState(`✅ Estado ${response.status}: respuesta recibida y analizada correctamente`)
       setIsLoading(false)
+      isProcessing.current = false
+    } catch (requestError) {
+      console.error('🎨 handleGenerate: Caught exception:', requestError)
+      setDebugState(`❌ Error: ${requestError.message}`)
+      setError(requestError.message || 'Hubo un problema al generar el reporte. Revisa la consola del navegador.')
+      setIsLoading(false)
+      isProcessing.current = false
     }
   }
 
   const downloadGeneratedImage = () => {
-    if (!generatedImage) return
+    if (!analysis) return
 
+    const blob = new Blob([JSON.stringify(analysis, null, 2)], { type: 'application/json' })
     const link = document.createElement('a')
-    link.href = generatedImage
-    link.download = 'colorimeter-report.svg'
+    link.href = URL.createObjectURL(blob)
+    link.download = 'colorimeter-report.json'
     link.click()
+    URL.revokeObjectURL(link.href)
   }
 
   return (
     <main className="app-shell">
+      <LoadingOverlay 
+        isVisible={isLoading} 
+        message="Analizando tu imagen..."
+        submessage="Gemini está procesando tus rasgos para generar la paleta de colores personalizada."
+      />
       <section className="hero-panel">
         <div className="hero-copy">
           <div className="eyebrow">
             <Sparkles size={16} />
             Gemini color analysis
           </div>
-          <h1>Tu colorimetría, convertida en una pieza visual limpia y premium.</h1>
+          <h1>Tu colorimetría, convertida en una guía de colores clara y premium.</h1>
           <p>
-            Sube una selfie o foto tipo carnet y obtén una infografía con los tonos que
-            mejor armonizan con tu piel, cabello y ojos, además de los colores a evitar.
+            Sube una selfie o foto tipo carnet y obtén una selección de colores recomendados,
+            neutros y a evitar, con una explicación simple de por qué te favorecen.
           </p>
 
           <div className="hero-points">
@@ -249,8 +385,8 @@ function App() {
               Paleta personalizada
             </span>
             <span>
-              <ImageDown size={16} />
-              Resultado tipo infografía
+              <Sparkles size={16} />
+              Resultado en texto estructurado
             </span>
           </div>
         </div>        
@@ -290,16 +426,16 @@ function App() {
             <p>La mejor precisión se consigue con una imagen frontal, sin filtros fuertes y con fondo neutro.</p>
           </div>
 
-          <button type="button" className="generate-button" onClick={handleGenerate} disabled={!selectedFile || isLoading}>
-            {isLoading ? (
+          <button type="button" className="generate-button" onClick={handleGenerate} disabled={!previewUrl || isLoading} style={isLoading ? { pointerEvents: 'none', opacity: 0.6 } : {}}>
+            {!isLoading ? (
               <>
-                <LoaderCircle size={18} className="spin" />
-                Generando reporte...
+                Analizar paleta de colores
+                <ArrowRight size={18} />
               </>
             ) : (
               <>
-                Generar imagen
-                <ArrowRight size={18} />
+                <LoaderCircle size={18} className="spin" />
+                Analizando...
               </>
             )}
           </button>
@@ -311,26 +447,73 @@ function App() {
           <div className="panel-head">
             <div>
               <span className="panel-kicker">Paso 2</span>
-              <h2>Resultado generado</h2>
+              <h2>Reporte de color</h2>
             </div>
-              <button type="button" className="ghost-button" onClick={downloadGeneratedImage} disabled={!generatedImage}>
-              Descargar
+            <button type="button" className="ghost-button" onClick={downloadGeneratedImage} disabled={!analysis}>
+              Descargar JSON
             </button>
           </div>
 
-          <div className="result-stage">
-            {isLoading ? (
-              <div className="loading-state">
-                <LoaderCircle size={34} className="spin" />
-                <strong>Analizando rasgos y construyendo la infografía</strong>
-                <span>Gemini está clasificando armonía, contrastes y paletas recomendadas.</span>
+          <div className="result-stage report-stage">
+            {analysis ? (
+              <div className="report-body">
+                <div className="report-hero">
+                  <div>
+                    <span className="panel-kicker">Lectura principal</span>
+                    <h3>{report.season || 'Tu paleta sugerida'}</h3>
+                    <p>{report.summary || fallbackReport.summary}</p>
+                  </div>
+                  <div className="report-badge">
+                    <span>Subtono</span>
+                    <strong>{report.undertone || fallbackReport.undertone}</strong>
+                  </div>
+                </div>
+
+                <div className="report-explainer">
+                  <span className="detail-label">Por qué te favorece</span>
+                  <p>{report.why_this_works || fallbackReport.why_this_works}</p>
+                </div>
+
+                <section className="report-section">
+                  <div className="section-headline">
+                    <h4>Mejor opción</h4>
+                    <span>6 colores</span>
+                  </div>
+                  <div className="tone-grid">
+                    {bestOptions.map((tone) => (
+                      <ToneCard key={`${tone.name}-${tone.hex}`} tone={tone} variant="best" />
+                    ))}
+                  </div>
+                </section>
+
+                <section className="report-section">
+                  <div className="section-headline">
+                    <h4>Neutros</h4>
+                    <span>4 colores</span>
+                  </div>
+                  <div className="tone-grid neutral-grid">
+                    {neutralOptions.map((tone) => (
+                      <ToneCard key={`${tone.name}-${tone.hex}`} tone={tone} variant="neutral" />
+                    ))}
+                  </div>
+                </section>
+
+                <section className="report-section">
+                  <div className="section-headline">
+                    <h4>Colores a evitar</h4>
+                    <span>3 colores</span>
+                  </div>
+                  <div className="tone-grid avoid-grid">
+                    {avoidOptions.map((tone) => (
+                      <ToneCard key={`${tone.name}-${tone.hex}`} tone={tone} variant="avoid" />
+                    ))}
+                  </div>
+                </section>
               </div>
-            ) : generatedImage ? (
-              <img className="result-image" src={generatedImage} alt="Infografía generada con recomendaciones de color" />
             ) : (
               <div className="empty-result">
-                <strong>El resultado aparecerá aquí</strong>
-                <span>Al generar, verás una composición vertical lista para usar o compartir.</span>
+                <strong>El reporte aparecerá aquí</strong>
+                <span>Al generar, verás una lectura de colores con la mejor opción, neutros y tonos a evitar.</span>
               </div>
             )}
           </div>
@@ -347,26 +530,39 @@ function App() {
 
           <div className="insight-grid">
             <div className="insight-card">
-              <span>Paleta</span>
-              <strong>{analysis?.palette?.length ?? 4} tonos</strong>
+              <span>Mejor opción</span>
+              <strong>{bestOptions.length} tonos</strong>
             </div>
             <div className="insight-card">
-              <span>Evitar</span>
-              <strong>{analysis?.avoid_colors?.length ?? 4} grupos</strong>
+              <span>Neutros</span>
+              <strong>{neutralOptions.length} tonos</strong>
             </div>
             <div className="insight-card">
-              <span>Lectura</span>
-              <strong>{analysis?.season || 'Pendiente'}</strong>
+              <span>A evitar</span>
+              <strong>{avoidOptions.length} tonos</strong>
             </div>
           </div>
         </article>
       </section>
 
+      <section className="raw-response-stage">
+        <article className="panel raw-panel">
+          <div className="panel-head">
+            <div>
+              <span className="panel-kicker">Depuración</span>
+              <h2>JSON crudo de Gemini</h2>
+            </div>
+            <span className="debug-pill">{debugState}</span>
+          </div>
+          <pre className="raw-response-box">{rawResponse || 'Aquí se mostrará exactamente el JSON devuelto por Gemini.'}</pre>
+        </article>
+      </section>
+
       <section className="bottom-grid">
         <article className="detail-card">
-          <span className="detail-label">Lo que devuelve Gemini</span>
+          <span className="detail-label">Salida estructurada</span>
           <p>
-            La API genera una lectura cromática estructurada para que la interfaz pueda transformarla en una infografía limpia y consistente.
+            Gemini devuelve un JSON con seis colores recomendados, cuatro neutros y tres tonos a evitar, junto con una explicación corta.
           </p>
         </article>
 
