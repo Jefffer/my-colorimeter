@@ -49,7 +49,7 @@ function getReportData(analysis) {
   return analysis || fallbackReport
 }
 
-function ColorList({ title, subtitle, items, accentClass, swatchClass }) {
+function ColorList({ title, subtitle, items, accentClass }) {
   return (
     <section className="rounded-[24px] border border-white/8 bg-white/4 p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -68,7 +68,9 @@ function ColorList({ title, subtitle, items, accentClass, swatchClass }) {
             key={`${item.name}-${item.hex}`}
             className="overflow-hidden rounded-[20px] border border-white/8 bg-slate-950/35"
           >
-            <div className={`h-20 w-full ${swatchClass}`} style={{ backgroundColor: item.hex }} />
+            <div className="relative h-20 w-full overflow-hidden" style={{ backgroundColor: item.hex }}>
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.02)_35%,rgba(255,255,255,0)_72%)]" />
+            </div>
             <div className="space-y-2 p-4">
               <div>
                 <strong className="block text-sm font-semibold text-white">{item.name}</strong>
@@ -337,7 +339,7 @@ function App() {
             <div className="min-h-[520px] rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.08),transparent_28%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.08),transparent_22%),rgba(255,255,255,0.03)]">
               {analysis ? (
                 <div className="grid gap-5 p-4 sm:p-5">
-                  <section className="flex flex-col gap-4 rounded-[22px] border border-white/10 bg-surface-soft/60 p-5 lg:flex-row lg:items-stretch lg:justify-between">
+                  <section className="flex flex-col gap-4 rounded-[22px] border border-white/10 bg-surface-soft/60 p-5 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Lectura principal</span>
                       <h3 className="mt-2 text-[clamp(24px,3vw,38px)] font-semibold tracking-[-0.05em] text-text">
@@ -348,21 +350,18 @@ function App() {
                       </p>
                     </div>
 
-                    <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(240,191,134,0.14),rgba(255,255,255,0.04))] p-5 lg:min-w-[200px]">
+                    <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(240,191,134,0.14),rgba(255,255,255,0.04))] px-4 py-3.5 lg:min-w-[180px] lg:self-start">
                       <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Subtono</span>
-                      <strong className="mt-2 block text-[22px] text-text">
+                      <strong className="mt-1.5 block text-[20px] leading-tight text-text">
                         {report.undertone || fallbackReport.undertone}
                       </strong>
                     </div>
                   </section>
 
                   <section className="rounded-[24px] border border-white/10 bg-surface-soft/60 p-5">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Descarga y uso</span>
+                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Tonos que funcionan</span>
                     <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
                       {report.why_this_works || fallbackReport.why_this_works}
-                    </p>
-                    <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
-                      toneMap te permite descargar el JSON para conservar la lectura, revisarla más tarde o analizarla por tu cuenta.
                     </p>
                   </section>
 
@@ -372,21 +371,18 @@ function App() {
                       subtitle="Colores más favorables para tu lectura"
                       items={report.best_options || fallbackReport.best_options}
                       accentClass="border-amber-300/20 bg-amber-300/10 text-amber-100"
-                      swatchClass="bg-gradient-to-br from-amber-200/60 via-stone-600/30 to-transparent"
                     />
                     <ColorList
                       title="Neutros"
                       subtitle="Bases versátiles para tu guardarropa"
                       items={report.neutral_options || fallbackReport.neutral_options}
                       accentClass="border-emerald-200/20 bg-emerald-200/10 text-emerald-100"
-                      swatchClass="bg-gradient-to-br from-emerald-200/50 via-slate-700/25 to-transparent"
                     />
                     <ColorList
                       title="A evitar"
                       subtitle="Tonos que tienden a endurecer o apagar"
                       items={report.avoid_options || fallbackReport.avoid_options}
                       accentClass="border-rose-200/20 bg-rose-200/10 text-rose-100"
-                      swatchClass="bg-gradient-to-br from-rose-200/45 via-slate-700/25 to-transparent"
                     />
                   </div>
                 </div>
