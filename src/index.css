@@ -57,50 +57,24 @@ img {
 	min-height: 100vh;
 }
 
-/* Hero section animations */
-@keyframes hero-gradient-shift {
-	0% {
-		background-position: 0% center;
-	}
-	50% {
-		background-position: 100% center;
-	}
-	100% {
-		background-position: 0% center;
-	}
-}
-
-@keyframes hero-overlay-pulse {
-	0% {
-		opacity: 0.6;
-	}
-	50% {
-		opacity: 0.8;
-	}
-	100% {
-		opacity: 0.6;
-	}
-}
+/* Hero section animations: gentle crossfade between gradient layers */
+/* Crossfading is handled via framer-motion for smoother, GPU-accelerated transitions */
 
 @keyframes hero-overlay-shift {
-	0% {
-		filter: brightness(1);
-	}
-	50% {
-		filter: brightness(1.08);
-	}
-	100% {
-		filter: brightness(1);
-	}
+	0% { filter: brightness(1); }
+	50% { filter: brightness(1.04); }
+	100% { filter: brightness(1); }
 }
 
-.animate-hero-gradient-shift {
-	animation: hero-gradient-shift 28s ease-in-out infinite;
+.hero-gradient-layer {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	will-change: opacity;
 }
 
-.animate-hero-overlay-pulse {
-	animation: hero-overlay-pulse 16s ease-in-out infinite;
-}
+/* Removed CSS crossfade animations; framer-motion manages opacity changes */
 
 .animate-hero-overlay-shift {
 	animation: hero-overlay-shift 22s ease-in-out infinite;

@@ -1,17 +1,30 @@
 import { ArrowDownRight, Camera, Palette, Sparkles } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 export function Hero({ onCtaClick }) {
   return (
     <section className="hero-section relative isolate h-screen w-full overflow-hidden">
-      {/* Animated color stripes background - shifts slowly */}
-      <div className="pointer-events-none absolute inset-0 -z-20 animate-hero-gradient-shift" style={{
-        background: 'linear-gradient(90deg, #3d7d3d 0%, #1b9d9d 15%, #0d5f9f 30%, #001a3d 45%, #c41e3a 60%, #6b1b3f 80%, #ff5a7e 100%)',
-        backgroundSize: '200% 100%',
-      }} />
-      
-      {/* Animated accent stripes */}
-      <div className="pointer-events-none absolute inset-0 -z-20 animate-hero-overlay-pulse">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.06)] to-[rgba(255,255,255,0.12)]" />
+      {/* Crossfading color gradients (subtle, no moving blocks) */}
+      <div className="pointer-events-none absolute inset-0 -z-20">
+        <motion.div
+          className="hero-gradient-layer"
+          style={{
+            background: 'linear-gradient(90deg, #3d7d3d 0%, #1b9d9d 20%, #0d5f9f 40%, #001a3d 60%, #c41e3a 75%, #ff5a7e 100%)',
+          }}
+          initial={{ opacity: 1 }}
+          animate={{ opacity: [1, 1, 0, 0, 1] }}
+          transition={{ duration: 36, times: [0, 0.45, 0.55, 0.99, 1], repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        <motion.div
+          className="hero-gradient-layer"
+          style={{
+            background: 'linear-gradient(90deg, #ff7ea0 0%, #c44b6b 20%, #8b2b6b 40%, #2b4b8b 60%, #1b9d9d 80%, #3d7d3d 100%)',
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0, 1, 1, 0] }}
+          transition={{ duration: 36, times: [0, 0.45, 0.55, 0.99, 1], repeat: Infinity, ease: 'easeInOut' }}
+        />
       </div>
 
       {/* Dynamic dark overlay - fixed left, animated right */}
@@ -19,11 +32,7 @@ export function Hero({ onCtaClick }) {
         background: 'linear-gradient(90deg, rgba(12,13,16,0.92) 0%, rgba(12,13,16,0.85) 20%, rgba(12,13,16,0.65) 50%, rgba(12,13,16,0.25) 85%, rgba(12,13,16,0.1) 100%)',
       }} />
 
-      {/* Subtle animated light accents - right side focus */}
-      <div className="pointer-events-none absolute inset-0 -z-10 animate-pulse" style={{animationDuration: '18s'}}>
-        <div className="absolute right-1/3 top-1/3 h-96 w-96 rounded-full bg-gradient-to-l from-accent/20 to-transparent blur-3xl" />
-        <div className="absolute right-0 bottom-1/4 h-80 w-80 rounded-full bg-gradient-to-l from-accent-soft/12 to-transparent blur-3xl" />
-      </div>
+      {/* (Removed subtle light 'circles' to keep background purely color-based) */}
 
       <div className="flex h-full w-full items-center justify-start">
         <div className="relative z-10 flex flex-col justify-center px-6 py-12 sm:px-8 md:px-12 lg:px-16 xl:px-20">
