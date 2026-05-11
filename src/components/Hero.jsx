@@ -1,4 +1,5 @@
 import { ArrowDownRight } from 'lucide-react'
+import { FaGithub } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 
 export function Hero({ onCtaClick }) {
@@ -71,8 +72,17 @@ export function Hero({ onCtaClick }) {
 
       <div className="flex h-full w-full items-center justify-start">
         <div className="relative z-10 flex w-full flex-col justify-center px-6 py-12 sm:px-8 md:px-12 lg:px-16 xl:px-20">
-          <p className="absolute left-1/2 top-8 -translate-x-1/2 text-center text-l font-light uppercase tracking-[0.42em] text-text/68 sm:top-10">
-            Introducing ToneMap
+          <p className="absolute left-1/2 top-8 -translate-x-1/2 text-center text-md font-light uppercase tracking-[0.42em] text-text/68 sm:top-10">
+            Introducing ToneMap by{' '}
+            <a
+              href="https://github.com/Jefffer/my-colorimeter"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-accent/82 transition-colors hover:text-accent/95"
+            >
+              <FaGithub size={12} className="shrink-0" />
+              Jefffer
+            </a>
           </p>
 
           <div className="max-w-3xl pt-12 sm:pt-14">

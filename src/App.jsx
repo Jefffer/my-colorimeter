@@ -236,10 +236,10 @@ function App() {
       <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.14),_transparent_24%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.1),_transparent_20%),linear-gradient(180deg,_#17191d_0%,_#0c0d10_100%)]">
         <div className="mx-auto flex w-full max-w-[1260px] flex-col gap-6 px-4 py-4 font-sans sm:px-5 lg:px-6 lg:py-6">
 
-        <section className="grid gap-6 xl:grid-cols-[0.96fr_1.04fr]">
+        <section className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
           <article
             ref={uploadSectionRef}
-            className="scroll-mt-6 rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6"
+            className="scroll-mt-6 rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6 lg:sticky lg:top-6 lg:self-start"
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
@@ -260,16 +260,16 @@ function App() {
             <button
               type="button"
               onClick={openFilePicker}
-              className="group flex min-h-[420px] w-full overflow-hidden rounded-[24px] border border-dashed border-white/10 bg-[radial-gradient(circle_at_20%_20%,rgba(240,191,134,0.06),transparent_30%),radial-gradient(circle_at_78%_0%,rgba(213,236,227,0.07),transparent_24%),rgba(255,255,255,0.03)] p-0 text-left transition-colors hover:border-accent/40"
+              className="group aspect-3/4 w-full overflow-hidden rounded-[24px] border border-dashed border-white/10 bg-[radial-gradient(circle_at_20%_20%,rgba(240,191,134,0.06),transparent_30%),radial-gradient(circle_at_78%_0%,rgba(213,236,227,0.07),transparent_24%),rgba(255,255,255,0.03)] p-0 text-left transition-colors hover:border-accent/40"
             >
               {previewUrl ? (
                 <img
                   src={previewUrl}
                   alt="Vista previa de la imagen subida"
-                  className="h-[420px] w-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="grid min-h-[420px] w-full place-items-center gap-3 p-7 text-center">
+                <div className="grid h-full w-full place-items-center gap-3 p-6 text-center">
                   <UploadCloud size={30} className="text-muted" />
                   <strong className="text-[20px] font-semibold text-text">Selecciona una foto para empezar</strong>
                   <span className="max-w-sm text-sm leading-6 text-muted">
@@ -283,7 +283,7 @@ function App() {
               La mejor precisión se consigue con una imagen frontal, sin filtros fuertes y con fondo neutro.
             </p>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <button
                 type="button"
                 onClick={handleGenerate}
