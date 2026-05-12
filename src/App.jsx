@@ -236,7 +236,7 @@ function App() {
       <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.14),_transparent_24%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.1),_transparent_20%),linear-gradient(180deg,_#17191d_0%,_#0c0d10_100%)]">
         <div className="mx-auto flex w-full max-w-[1260px] flex-col gap-6 px-4 py-4 font-sans sm:px-5 lg:px-6 lg:py-6">
 
-        <section className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+        <section className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[380px_minmax(0,1fr)]">
           <article
             ref={uploadSectionRef}
             className="scroll-mt-6 rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6 lg:sticky lg:top-6 lg:self-start"
@@ -292,7 +292,7 @@ function App() {
               >
                 {!isLoading ? (
                   <>
-                    Analizar paleta de colores
+                    Analizar colorimetria
                     <ArrowRight size={18} />
                   </>
                 ) : (
@@ -301,15 +301,6 @@ function App() {
                     Analizando...
                   </>
                 )}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleClear}
-                disabled={!previewUrl && !analysis && !error}
-                className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-4 font-semibold text-text transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Limpiar todo
               </button>
             </div>
 
@@ -326,14 +317,25 @@ function App() {
                 <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 2</span>
                 <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Tu lectura ToneMap</h2>
               </div>
-              <button
-                type="button"
-                onClick={downloadGeneratedImage}
-                disabled={!analysis}
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Descargar JSON
-              </button>
+              <div className="flex items-center gap-2">
+                {analysis ? (
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5"
+                  >
+                    Limpiar todo
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={downloadGeneratedImage}
+                  disabled={!analysis}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Descargar JSON
+                </button>
+              </div>
             </div>
 
             <div className="min-h-[520px] rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.08),transparent_28%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.08),transparent_22%),rgba(255,255,255,0.03)]">
