@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react'
-import { ArrowRight, LoaderCircle, UploadCloud } from 'lucide-react'
+import { ArrowRight, LoaderCircle, UploadCloud, Info } from 'lucide-react'
 import { Hero } from './components/Hero'
 import { LoadingOverlay } from './components/LoadingOverlay'
+import Tippy from '@tippyjs/react'
+import 'tippy.js/dist/tippy.css'
 
 const fallbackReport = {
   season: 'Tu lectura ToneMap',
@@ -246,7 +248,27 @@ function App() {
                 <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 1</span>
                 <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Sube tu imagen</h2>
               </div>
-              <UploadCloud size={18} className="text-muted" />
+              <div className="flex items-center gap-3">
+                {/* <UploadCloud size={18} className="text-muted" /> */}
+                <Tippy
+                  content={
+                    <span className="text-sm">
+                      Usa una imagen frontal, con buena iluminación, sin filtros fuertes y con fondo neutro.
+                    </span>
+                  }
+                    delay={[120, 40]}
+                    placement="bottom"
+                    theme="site"
+                >
+                  <button
+                    type="button"
+                    aria-label="Tips para una mejor lectura"
+                    className="inline-flex items-center justify-center rounded-full bg-white/3 p-1 text-muted hover:opacity-90"
+                  >
+                    <Info size={14} />
+                  </button>
+                </Tippy>
+              </div>
             </div>
 
             <input
@@ -279,9 +301,7 @@ function App() {
               )}
             </button>
 
-            <p className="mt-4 rounded-[18px] border border-white/10 bg-surface-soft/60 px-4 py-3 text-sm leading-6 text-muted">
-              La mejor precisión se consigue con una imagen frontal, sin filtros fuertes y con fondo neutro.
-            </p>
+            {/* Info tooltip moved to the upload header for a more consistent layout */}
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <button

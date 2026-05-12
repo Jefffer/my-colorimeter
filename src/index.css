@@ -115,3 +115,22 @@ img {
 	will-change: transform, opacity, filter;
 	pointer-events: none;
 }
+
+/* Tippy custom theme matching site design — use Tailwind where possible */
+@layer components {
+	.tippy-box[data-theme~='site'] {
+		@apply rounded-lg border px-3 py-2 shadow-2xl max-w-md text-sm font-medium;
+		background-color: rgba(16,17,21,0.94); /* dark surface (use variable if preferred) */
+		color: var(--color-text);
+		border-color: rgba(255,255,255,0.06);
+	}
+
+	.tippy-box[data-theme~='site'] .tippy-content {
+		@apply font-medium;
+	}
+}
+
+/* Style the arrow (can't be expressed with @apply) */
+.tippy-box[data-theme~='site'] [data-popper-arrow] {
+	fill: rgba(16,17,21,0.94);
+}
