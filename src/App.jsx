@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ArrowRight, LoaderCircle, UploadCloud, Info } from 'lucide-react'
 import { Hero } from './components/Hero'
 import { LoadingOverlay } from './components/LoadingOverlay'
+import Footer from './components/Footer'
 import Tippy from '@tippyjs/react'
 import 'tippy.js/dist/tippy.css'
 
@@ -98,6 +99,7 @@ function App() {
   const isProcessing = useRef(false)
 
   const report = getReportData(analysis)
+  const [footerVisible, setFooterVisible] = useState(false)
 
   const openFilePicker = () => {
     fileInputRef.current?.click()
@@ -241,7 +243,7 @@ function App() {
         <section className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[380px_minmax(0,1fr)]">
           <article
             ref={uploadSectionRef}
-            className="scroll-mt-6 rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6 lg:sticky lg:top-6 lg:self-start"
+            className={`scroll-mt-6 rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6 ${!footerVisible ? 'lg:sticky lg:top-6 lg:self-start' : ''}`}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
@@ -423,7 +425,9 @@ function App() {
             </div>
           </article>
         </section>
+        
         </div>
+        <Footer onVisibleChange={setFooterVisible} />
       </div>
     </main>
   )
