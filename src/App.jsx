@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { ArrowRight, LoaderCircle, UploadCloud, Info } from 'lucide-react'
 import { Hero } from './components/Hero'
 import { LoadingOverlay } from './components/LoadingOverlay'
@@ -100,6 +100,43 @@ function App() {
 
   const report = getReportData(analysis)
   const [footerVisible, setFooterVisible] = useState(false)
+  const [stickyTopOffset, setStickyTopOffset] = useState(24) // default top-6 in px
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window === 'undefined') return
+      
+      const uploadSection = uploadSectionRef.current
+      const footer = document.querySelector('footer')
+      
+      if (!uploadSection || !footer) {
+        setStickyTopOffset(24)
+        return
+      }
+
+      const uploadRect = uploadSection.getBoundingClientRect()
+      const footerRect = footer.getBoundingClientRect()
+      const viewportHeight = window.innerHeight
+      const uploadHeight = uploadRect.height
+      
+      // Space available from top of upload to footer
+      const spaceToFooter = footerRect.top - uploadRect.top
+      
+      // If there's not enough space, push the element down gradually
+      if (spaceToFooter < uploadHeight) {
+        // Calculate how much to offset to make room for footer
+        const offset = Math.max(24, uploadHeight - spaceToFooter + 24)
+        setStickyTopOffset(offset)
+      } else {
+        // Normal sticky position
+        setStickyTopOffset(24)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll() // Call once on mount
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const openFilePicker = () => {
     fileInputRef.current?.click()
@@ -243,7 +280,8 @@ function App() {
         <section className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[380px_minmax(0,1fr)]">
           <article
             ref={uploadSectionRef}
-            className={`scroll-mt-6 rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6 ${!footerVisible ? 'lg:sticky lg:top-6 lg:self-start' : ''}`}
+            className="scroll-mt-6 rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6 lg:sticky lg:self-start"
+            style={{ top: `${stickyTopOffset}px` }}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
