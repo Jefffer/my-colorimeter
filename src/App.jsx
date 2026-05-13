@@ -504,114 +504,116 @@ function App() {
               </div>
             ) : null}
           </article>
-          <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
-            <div className="min-h-[520px] p-5 sm:p-6">
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 2</span>
-                  <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Tu lectura ToneMap</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  {analysis ? (
+          <div className="space-y-6">
+            <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
+              <div className="min-h-[520px] p-5 sm:p-6">
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 2</span>
+                    <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Tu lectura ToneMap</h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {analysis ? (
+                      <button
+                        type="button"
+                        onClick={handleClear}
+                        className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5"
+                      >
+                        Limpiar todo
+                      </button>
+                    ) : null}
                     <button
                       type="button"
-                      onClick={handleClear}
-                      className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5"
+                      onClick={downloadGeneratedImage}
+                      disabled={!analysis}
+                      className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Limpiar todo
+                      Descargar JSON
                     </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={downloadGeneratedImage}
-                    disabled={!analysis}
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Descargar JSON
-                  </button>
+                  </div>
                 </div>
-              </div>
 
-              {analysis ? (
-                <div className="flex flex-col gap-5">
-                  <div className="flex flex-col gap-4 rounded-[22px] border border-white/10 bg-surface-soft/60 p-5 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Lectura principal</span>
-                      <h3 className="mt-2 text-[clamp(24px,3vw,38px)] font-semibold tracking-[-0.05em] text-text">
-                        {report.season || 'Tu lectura ToneMap'}
-                      </h3>
-                      <p className="mt-3 max-w-2xl text-sm leading-7 text-muted sm:text-base">
-                        {report.summary || fallbackReport.summary}
+                {analysis ? (
+                  <div className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-4 rounded-[22px] border border-white/10 bg-surface-soft/60 p-5 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Lectura principal</span>
+                        <h3 className="mt-2 text-[clamp(24px,3vw,38px)] font-semibold tracking-[-0.05em] text-text">
+                          {report.season || 'Tu lectura ToneMap'}
+                        </h3>
+                        <p className="mt-3 max-w-2xl text-sm leading-7 text-muted sm:text-base">
+                          {report.summary || fallbackReport.summary}
+                        </p>
+                      </div>
+
+                      <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(240,191,134,0.14),rgba(255,255,255,0.04))] px-4 py-3.5 lg:min-w-[180px] lg:self-start">
+                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Subtono</span>
+                        <strong className="mt-1.5 block text-[20px] leading-tight text-text">
+                          {report.undertone || fallbackReport.undertone}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[24px] border border-white/10 bg-surface-soft/60 p-5">
+                      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Tonos que funcionan</span>
+                      <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
+                        {report.why_this_works || fallbackReport.why_this_works}
                       </p>
                     </div>
 
-                    <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(240,191,134,0.14),rgba(255,255,255,0.04))] px-4 py-3.5 lg:min-w-[180px] lg:self-start">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Subtono</span>
-                      <strong className="mt-1.5 block text-[20px] leading-tight text-text">
-                        {report.undertone || fallbackReport.undertone}
-                      </strong>
+                    <div className="grid gap-4">
+                      <ColorList
+                        title="Mejores opciones"
+                        subtitle="Colores más favorables para tu lectura"
+                        items={report.best_options || fallbackReport.best_options}
+                        accentClass="border-amber-300/20 bg-amber-300/10 text-amber-100"
+                      />
+                      <ColorList
+                        title="Neutros"
+                        subtitle="Bases versátiles para tu guardarropa"
+                        items={report.neutral_options || fallbackReport.neutral_options}
+                        accentClass="border-emerald-200/20 bg-emerald-200/10 text-emerald-100"
+                      />
+                      <ColorList
+                        title="A evitar"
+                        subtitle="Tonos que tienden a endurecer o apagar"
+                        items={report.avoid_options || fallbackReport.avoid_options}
+                        accentClass="border-rose-200/20 bg-rose-200/10 text-rose-100"
+                      />
                     </div>
                   </div>
-
-                  <div className="rounded-[24px] border border-white/10 bg-surface-soft/60 p-5">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Tonos que funcionan</span>
-                    <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
-                      {report.why_this_works || fallbackReport.why_this_works}
-                    </p>
+                ) : (
+                  <div className="grid place-items-center mt-20 sm:mt-35 text-center">
+                    <div className="max-w-md">
+                      <strong className="block text-[22px] font-semibold tracking-[-0.04em] text-text/80">
+                        Tu análisis aparecerá aquí
+                      </strong>
+                      <p className="mt-3 text-sm leading-7 text-muted/80 sm:text-base">
+                        Sube una foto, analiza la imagen y descarga el JSON si quieres conservar el resultado.
+                      </p>
+                    </div>
                   </div>
-
-                  <div className="grid gap-4">
-                    <ColorList
-                      title="Mejores opciones"
-                      subtitle="Colores más favorables para tu lectura"
-                      items={report.best_options || fallbackReport.best_options}
-                      accentClass="border-amber-300/20 bg-amber-300/10 text-amber-100"
-                    />
-                    <ColorList
-                      title="Neutros"
-                      subtitle="Bases versátiles para tu guardarropa"
-                      items={report.neutral_options || fallbackReport.neutral_options}
-                      accentClass="border-emerald-200/20 bg-emerald-200/10 text-emerald-100"
-                    />
-                    <ColorList
-                      title="A evitar"
-                      subtitle="Tonos que tienden a endurecer o apagar"
-                      items={report.avoid_options || fallbackReport.avoid_options}
-                      accentClass="border-rose-200/20 bg-rose-200/10 text-rose-100"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="grid place-items-center mt-20 sm:mt-45 text-center">
-                  <div className="max-w-md">
-                    <strong className="block text-[22px] font-semibold tracking-[-0.04em] text-text/80">
-                      Tu análisis aparecerá aquí
-                    </strong>
-                    <p className="mt-3 text-sm leading-7 text-muted/80 sm:text-base">
-                      Sube una foto, analiza la imagen y descarga el JSON si quieres conservar el resultado.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </article>
-          
-          {/* Paso 3 - Descargar PDF */}
-          <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
-            <div className="min-h-[160px] p-5 sm:p-6 flex items-center justify-between gap-4">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 3</span>
-                <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.04em] text-text">Descarga tu infografía</h2>
-                <p className="mt-2 max-w-lg text-sm leading-7 text-muted sm:text-base">
-                  Conserva tus resultados en un PDF elegante listo para imprimir o compartir.
-                </p>
+                )}
               </div>
+            </article>
 
-              <div className="flex items-center">
-                <DownloadPdfButton report={analysis || report} />
+            {/* Paso 3 - Descargar PDF */}
+            <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
+              <div className="min-h-[160px] p-5 sm:p-6 flex items-center justify-between gap-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 3</span>
+                  <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.04em] text-text">Descarga tu infografía</h2>
+                  <p className="mt-2 max-w-lg text-sm leading-7 text-muted sm:text-base">
+                    Conserva tus resultados en un PDF elegante listo para imprimir o compartir.
+                  </p>
+                </div>
+
+                <div className="flex items-center">
+                  <DownloadPdfButton report={analysis || report} />
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
+          </div>
         </section>
         
         </div>
