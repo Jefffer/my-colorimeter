@@ -5,6 +5,7 @@ import { LoadingOverlay } from './components/LoadingOverlay'
 import Footer from './components/Footer'
 import Tippy from '@tippyjs/react'
 import 'tippy.js/dist/tippy.css'
+import DownloadPdfButton from './components/pdf/DownloadPdfButton'
 
 const fallbackReport = {
   season: 'Tu lectura ToneMap',
@@ -503,7 +504,6 @@ function App() {
               </div>
             ) : null}
           </article>
-
           <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
             <div className="min-h-[520px] p-5 sm:p-6">
               <div className="mb-5 flex items-start justify-between gap-4">
@@ -593,6 +593,23 @@ function App() {
                   </div>
                 </div>
               )}
+            </div>
+          </article>
+          
+          {/* Paso 3 - Descargar PDF */}
+          <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
+            <div className="min-h-[160px] p-5 sm:p-6 flex items-center justify-between gap-4">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 3</span>
+                <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.04em] text-text">Descarga tu infografía</h2>
+                <p className="mt-2 max-w-lg text-sm leading-7 text-muted sm:text-base">
+                  Conserva tus resultados en un PDF elegante listo para imprimir o compartir.
+                </p>
+              </div>
+
+              <div className="flex items-center">
+                <DownloadPdfButton report={analysis || report} />
+              </div>
             </div>
           </article>
         </section>
