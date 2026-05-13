@@ -329,6 +329,22 @@ function App() {
       console.info(`toneMap: respuesta recibida, status=${response.status}`)
       if (payload?.model) console.info(`toneMap: modelo usado = ${payload.model}`)
 
+      // Some error responses (422) may include a rawResponse JSON with validity=false
+      let parsedRawResponse = null
+      try {
+        if (payload?.report) parsedRawResponse = payload.report
+        else if (payload?.analysis) parsedRawResponse = payload.analysis
+        else if (payload?.rawResponse) parsedRawResponse = JSON.parse(payload.rawResponse)
+      } catch {
+        parsedRawResponse = null
+      }
+
+      if (parsedRawResponse?.validity && parsedRawResponse.validity.analyzable === false) {
+        // Show modal with reason from backend and do not treat as generic error
+        setFileAlert({ title: 'No se pudo analizar la imagen', message: parsedRawResponse.validity.reason || 'Imagen no adecuada para análisis' })
+        return
+      }
+
       if (!response.ok) {
         console.warn(`toneMap: error desde Gemini: status=${response.status}`)
         setError(payload?.error || 'No fue posible generar el reporte')
@@ -338,6 +354,13 @@ function App() {
       const normalized = normalizeApiReport(payload, payload?.rawResponse || '')
       if (!normalized) {
         setError('No fue posible interpretar la respuesta de ToneMap')
+        return
+      }
+
+      // If backend reports the image is not analyzable, surface a modal with the reason
+      if (normalized?.validity && normalized.validity.analyzable === false) {
+        setAnalysis(normalized)
+        setFileAlert({ title: 'No se pudo analizar la imagen', message: normalized.validity.reason || 'Imagen no adecuada para análisis' })
         return
       }
 

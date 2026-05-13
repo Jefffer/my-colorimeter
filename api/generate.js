@@ -207,7 +207,41 @@ export default async function handler(req, res) {
 		let report
 
 		try {
-			report = validateReport(extractJson(response?.text || ''))
+			const parsed = extractJson(response?.text || '')
+
+			// If model explicitly indicates the image is not analyzable, return early with empty fields
+			const validity = parsed?.validity || null
+			const photoType = parsed?.photo_type || 'other'
+
+			if (validity && validity.analyzable === false) {
+				report = {
+					photo_type: photoType,
+					validity: {
+						is_person: Boolean(validity.is_person === true),
+						analyzable: false,
+						reason: String(validity.reason || 'Imagen no adecuada para análisis').trim(),
+					},
+					season: '',
+					undertone: '',
+					summary: '',
+					why_this_works: '',
+					best_options: [],
+					neutral_options: [],
+					avoid_options: [],
+				}
+			} else {
+				// Normal path: validate the full report and attach validity/photo_type if provided
+				const validated = validateReport(parsed)
+				report = {
+					photo_type: photoType || 'portrait',
+					validity: {
+						is_person: validity?.is_person === false ? false : true,
+						analyzable: true,
+						reason: '',
+					},
+					...validated,
+				}
+			}
 		} catch (parseError) {
 			const payload = {
 				error: parseError instanceof Error ? parseError.message : 'Gemini respondió algo que no es JSON válido.',

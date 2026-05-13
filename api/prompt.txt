@@ -10,6 +10,8 @@ Provide a clear color palette recommendation for the user based on undertone, co
 
 REQUIRED OUTPUT FORMAT:
 {
+	"photo_type": "string", // "portrait" | "full_body" | "other"
+	"validity": { "is_person": true|false, "analyzable": true|false, "reason": "string" },
 	"season": "string",
 	"undertone": "string",
 	"summary": "string",
@@ -46,6 +48,13 @@ RESPONSE RULES:
 - Do not add any keys other than the ones shown above.
 - Do not wrap the JSON in markdown or code fences.
 - The final answer must be parseable JSON.
+
+ADDITIONAL VALIDATION RULES:
+- You MUST detect whether the image contains a person. Add `validity.is_person` = true if a person is clearly present, otherwise false.
+- You MUST detect whether the image is a frontal portrait (close-up of the face) or a full-body photo. Return `photo_type` as one of: "portrait", "full_body", or "other".
+- You MUST determine if the image is analyzable for a reliable colorimetry reading. Set `validity.analyzable` to `false` if the image is not suitable (examples: no person detected, face not visible, extreme blur, heavy filters, low light, occluded face, more than one person in frame). When `analyzable` is `false`, set `validity.reason` to one short sentence explaining WHY (max 12 words).
+- IMPORTANT: If `validity.analyzable` is `false`, then all other palette fields (`season`, `undertone`, `summary`, `why_this_works`, `best_options`, `neutral_options`, `avoid_options`) MUST be empty strings or empty arrays (i.e. `""` or `[]`). Do not invent values.
+
 
 STYLE GUIDANCE:
 - Favor a creative but understandable palette.
