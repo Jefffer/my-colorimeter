@@ -374,16 +374,7 @@ function App() {
     }
   }
 
-  const downloadGeneratedImage = () => {
-    if (!analysis) return
-
-    const blob = new Blob([JSON.stringify(analysis, null, 2)], { type: 'application/json' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = 'tonemap-report.json'
-    link.click()
-    URL.revokeObjectURL(link.href)
-  }
+  
 
   return (
     <main className="text-text">
@@ -522,14 +513,14 @@ function App() {
                         Limpiar todo
                       </button>
                     ) : null}
-                    <button
+                    {/* <button
                       type="button"
                       onClick={downloadGeneratedImage}
                       disabled={!analysis}
                       className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Descargar JSON
-                    </button>
+                    </button> */}
                   </div>
                 </div>
 
@@ -589,7 +580,7 @@ function App() {
                         Tu análisis aparecerá aquí
                       </strong>
                       <p className="mt-3 text-sm leading-7 text-muted/80 sm:text-base">
-                        Sube una foto, analiza la imagen y descarga el JSON si quieres conservar el resultado.
+                        Sube una foto, analiza la imagen y descarga el PDF si quieres conservar el resultado.
                       </p>
                     </div>
                   </div>
@@ -609,7 +600,7 @@ function App() {
                 </div>
 
                 <div className="flex items-center">
-                  <DownloadPdfButton report={analysis || report} />
+                  {analysis ? <DownloadPdfButton report={analysis} /> : null}
                 </div>
               </div>
             </article>
