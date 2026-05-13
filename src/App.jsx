@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { ArrowRight, LoaderCircle, UploadCloud, Info } from 'lucide-react'
+import { AlertTriangle, ArrowRight, LoaderCircle, UploadCloud, Info } from 'lucide-react'
 import { Hero } from './components/Hero'
 import { LoadingOverlay } from './components/LoadingOverlay'
 import Footer from './components/Footer'
@@ -32,6 +32,10 @@ const fallbackReport = {
   ],
 }
 
+const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp'])
+const allowedImageExtensions = new Set(['jpg', 'jpeg', 'png', 'webp'])
+const maxImageSizeBytes = 5 * 1024 * 1024
+
 function safeJsonParse(input) {
   try {
     return JSON.parse(input)
@@ -50,6 +54,28 @@ function normalizeApiReport(payload, rawResponse) {
 
 function getReportData(analysis) {
   return analysis || fallbackReport
+}
+
+function getFileExtension(fileName) {
+  return fileName.includes('.') ? fileName.split('.').pop().toLowerCase() : ''
+}
+
+function getFileValidationError(file) {
+  if (!file) return ''
+
+  const extension = getFileExtension(file.name)
+  const hasAllowedType = allowedImageTypes.has(file.type)
+  const hasAllowedExtension = allowedImageExtensions.has(extension)
+
+  if (!hasAllowedType && !hasAllowedExtension) {
+    return 'Formato no válido. Sube una imagen JPG, JPEG, PNG o WebP.'
+  }
+
+  if (file.size > maxImageSizeBytes) {
+    return 'La imagen pesa demasiado. Usa un archivo de hasta 5 MB para un análisis más rápido.'
+  }
+
+  return ''
 }
 
 function ColorList({ title, subtitle, items, accentClass }) {
@@ -88,18 +114,68 @@ function ColorList({ title, subtitle, items, accentClass }) {
   )
 }
 
+function AlertModal({ title, message, onAccept }) {
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
+      <button
+        type="button"
+        aria-label="Cerrar alerta"
+        className="absolute inset-0 cursor-default bg-page/72 backdrop-blur-md"
+        onClick={(event) => event.preventDefault()}
+      />
+
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="file-alert-title"
+        aria-describedby="file-alert-message"
+        className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,17,21,0.98),rgba(22,25,34,0.96))] p-6 shadow-elevated"
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(240,191,134,0.8),transparent)]" />
+
+        <div className="flex items-start gap-4">
+          <div className="rounded-2xl border border-rose-400/15 bg-rose-400/10 p-3 text-rose-100 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+            <AlertTriangle size={20} />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted">Alerta de carga</span>
+            <h2 id="file-alert-title" className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">
+              {title}
+            </h2>
+            <p id="file-alert-message" className="mt-3 text-sm leading-6 text-white/70">
+              {message}
+            </p>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={onAccept}
+                className="inline-flex items-center justify-center rounded-full bg-linear-to-r from-accent via-[#f7dfb7] to-accent-soft px-5 py-3 text-sm font-extrabold text-slate-950 shadow-[0_16px_36px_rgba(240,191,134,0.16)] transition-transform hover:-translate-y-0.5"
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [analysis, setAnalysis] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [fileAlert, setFileAlert] = useState(null)
   const fileInputRef = useRef(null)
   const uploadSectionRef = useRef(null)
   const isProcessing = useRef(false)
 
   const report = getReportData(analysis)
-  const [footerVisible, setFooterVisible] = useState(false)
+  const [, setFooterVisible] = useState(false)
   const [stickyTopOffset, setStickyTopOffset] = useState(24) // default top-6 in px
 
   useEffect(() => {
@@ -116,7 +192,6 @@ function App() {
 
       const uploadRect = uploadSection.getBoundingClientRect()
       const footerRect = footer.getBoundingClientRect()
-      const viewportHeight = window.innerHeight
       const uploadHeight = uploadRect.height
       
       // Space available from top of upload to footer
@@ -150,6 +225,24 @@ function App() {
     const [file] = event.target.files || []
     if (!file) return
 
+    const validationError = getFileValidationError(file)
+    if (validationError) {
+      setFileAlert({
+        title: 'Formato de imagen no válido',
+        message: validationError,
+      })
+      setError('')
+      setSelectedFile(null)
+      setPreviewUrl('')
+      setAnalysis(null)
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+
+      return
+    }
+
     const nextPreviewUrl = await new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.onload = () => resolve(reader.result)
@@ -168,12 +261,17 @@ function App() {
     setPreviewUrl('')
     setAnalysis(null)
     setError('')
+    setFileAlert(null)
     isProcessing.current = false
     setIsLoading(false)
 
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  const closeFileAlert = () => {
+    setFileAlert(null)
   }
 
   const handleGenerate = async (event) => {
@@ -265,6 +363,10 @@ function App() {
 
   return (
     <main className="text-text">
+      {fileAlert ? (
+        <AlertModal title={fileAlert.title} message={fileAlert.message} onAccept={closeFileAlert} />
+      ) : null}
+
       <LoadingOverlay
         isVisible={isLoading}
         message="Analizando tu imagen..."
@@ -315,7 +417,7 @@ function App() {
               ref={fileInputRef}
               className="sr-only"
               type="file"
-              accept="image/*"
+              accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
               onChange={handleFileSelect}
             />
 
@@ -335,7 +437,7 @@ function App() {
                   <UploadCloud size={30} className="text-muted" />
                   <strong className="text-[20px] font-semibold text-text">Selecciona una foto para empezar</strong>
                   <span className="max-w-sm text-sm leading-6 text-muted">
-                    JPEG, PNG o WebP. Idealmente con el rostro bien iluminado.
+                    JPG, JPEG, PNG o WebP. Usa una imagen ligera de hasta 5 MB y con el rostro bien iluminado.
                   </span>
                 </div>
               )}
@@ -365,8 +467,16 @@ function App() {
             </div>
 
             {error ? (
-              <div className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-                {error}
+              <div className="mt-4 rounded-[20px] border border-rose-400/18 bg-[linear-gradient(180deg,rgba(127,29,29,0.22),rgba(69,10,10,0.16))] px-4 py-3.5 text-sm text-rose-100 shadow-[0_12px_30px_rgba(127,29,29,0.12)]">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 rounded-full bg-rose-400/10 p-2 text-rose-200">
+                    <AlertTriangle size={14} />
+                  </span>
+                  <div>
+                    <strong className="block text-sm font-semibold text-rose-50">No se pudo cargar la imagen</strong>
+                    <p className="mt-1 leading-6 text-rose-100/90">{error}</p>
+                  </div>
+                </div>
               </div>
             ) : null}
           </article>
