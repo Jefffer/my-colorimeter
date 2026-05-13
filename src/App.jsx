@@ -505,7 +505,7 @@ function App() {
           </article>
 
           <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
-            <div className="min-h-[520px] rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.08),transparent_28%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.08),transparent_22%),rgba(255,255,255,0.03)] p-5 sm:p-6">
+            <div className="min-h-[520px] p-5 sm:p-6">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 2</span>
@@ -582,12 +582,12 @@ function App() {
                   </div>
                 </div>
               ) : (
-                <div className="grid place-items-center p-8 text-center">
+                <div className="grid place-items-center mt-20 sm:mt-45 text-center">
                   <div className="max-w-md">
-                    <strong className="block text-[22px] font-semibold tracking-[-0.04em] text-text">
-                      Tu lectura aparecerá aquí
+                    <strong className="block text-[22px] font-semibold tracking-[-0.04em] text-text/80">
+                      Tu análisis aparecerá aquí
                     </strong>
-                    <p className="mt-3 text-sm leading-7 text-muted sm:text-base">
+                    <p className="mt-3 text-sm leading-7 text-muted/80 sm:text-base">
                       Sube una foto, analiza la imagen y descarga el JSON si quieres conservar el resultado.
                     </p>
                   </div>

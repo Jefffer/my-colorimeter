@@ -72,7 +72,7 @@ export function Hero({ onCtaClick }) {
 
       <div className="flex h-full w-full items-center justify-start">
         <div className="relative z-10 flex w-full flex-col justify-center px-6 py-12 sm:px-8 md:px-12 lg:px-16 xl:px-20">
-          <p className="absolute left-1/2 top-8 -translate-x-1/2 text-center text-md font-light uppercase tracking-[0.42em] text-text/68 sm:top-10">
+          <p className="absolute left-1/2 top-1 -translate-x-1/2 text-center text-md font-light uppercase tracking-[0.42em] text-text/68 sm:top-5 md:top-10">
             Introducing ToneMap by{' '}
             <a
               href="https://github.com/Jefffer/my-colorimeter"
