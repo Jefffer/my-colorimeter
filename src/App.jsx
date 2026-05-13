@@ -504,37 +504,37 @@ function App() {
             ) : null}
           </article>
 
-          <article className="rounded-[28px] border border-white/10 bg-surface/80 p-5 shadow-elevated backdrop-blur-2xl sm:p-6">
-            <div className="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 2</span>
-                <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Tu lectura ToneMap</h2>
-              </div>
-              <div className="flex items-center gap-2">
-                {analysis ? (
+          <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
+            <div className="min-h-[520px] rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.08),transparent_28%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.08),transparent_22%),rgba(255,255,255,0.03)] p-5 sm:p-6">
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 2</span>
+                  <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Tu lectura ToneMap</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  {analysis ? (
+                    <button
+                      type="button"
+                      onClick={handleClear}
+                      className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5"
+                    >
+                      Limpiar todo
+                    </button>
+                  ) : null}
                   <button
                     type="button"
-                    onClick={handleClear}
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5"
+                    onClick={downloadGeneratedImage}
+                    disabled={!analysis}
+                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Limpiar todo
+                    Descargar JSON
                   </button>
-                ) : null}
-                <button
-                  type="button"
-                  onClick={downloadGeneratedImage}
-                  disabled={!analysis}
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Descargar JSON
-                </button>
+                </div>
               </div>
-            </div>
 
-            <div className="min-h-[520px] rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(240,191,134,0.08),transparent_28%),radial-gradient(circle_at_top_right,_rgba(213,236,227,0.08),transparent_22%),rgba(255,255,255,0.03)]">
               {analysis ? (
-                <div className="grid gap-5 p-4 sm:p-5">
-                  <section className="flex flex-col gap-4 rounded-[22px] border border-white/10 bg-surface-soft/60 p-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-4 rounded-[22px] border border-white/10 bg-surface-soft/60 p-5 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Lectura principal</span>
                       <h3 className="mt-2 text-[clamp(24px,3vw,38px)] font-semibold tracking-[-0.05em] text-text">
@@ -551,14 +551,14 @@ function App() {
                         {report.undertone || fallbackReport.undertone}
                       </strong>
                     </div>
-                  </section>
+                  </div>
 
-                  <section className="rounded-[24px] border border-white/10 bg-surface-soft/60 p-5">
+                  <div className="rounded-[24px] border border-white/10 bg-surface-soft/60 p-5">
                     <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Tonos que funcionan</span>
                     <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
                       {report.why_this_works || fallbackReport.why_this_works}
                     </p>
-                  </section>
+                  </div>
 
                   <div className="grid gap-4">
                     <ColorList
@@ -582,7 +582,7 @@ function App() {
                   </div>
                 </div>
               ) : (
-                <div className="grid min-h-[520px] place-items-center p-8 text-center">
+                <div className="grid place-items-center p-8 text-center">
                   <div className="max-w-md">
                     <strong className="block text-[22px] font-semibold tracking-[-0.04em] text-text">
                       Tu lectura aparecerá aquí
