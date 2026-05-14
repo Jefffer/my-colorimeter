@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
+import { SiGooglegemini } from 'react-icons/si'
 
 export default function Footer({ onVisibleChange }) {
   const ref = useRef(null)
@@ -29,9 +30,22 @@ export default function Footer({ onVisibleChange }) {
         <div className="grid gap-8 lg:grid-cols-[1.2fr_auto] lg:items-end">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted">Transparencia</span>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight">ToneMap trabaja con Gemini, sin guardar tu foto.</h3>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight">
+              ToneMap trabaja con{' '}
+              <a
+                href="https://gemini.google.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center align-baseline text-[#4f86ff]/90 transition hover:text-[#7ab4ff]/90"
+                aria-label="Abrir Gemini en una nueva pestaña"
+              >
+                Gemini
+                <SiGooglegemini className="h-[1.05em] w-[1.05em] shrink-0 ttext-[#4f86ff]/90 transition hover:text-[#7ab4ff]/90 drop-shadow-[0_0_10px_rgba(79,134,255,0.28)]" aria-hidden="true" />
+              </a>
+              , sin guardar tu foto.
+            </h3>
             <p className="mt-4 max-w-2xl text-sm text-muted/90">
-              El análisis se genera para ti y no se almacena en ningún servidor. Desarrollo claro, procesos visibles y enfoque en tu privacidad.
+              El análisis se genera para ti y no se almacena en ningún servidor. Desarrollo transparente y OpenSource, procesos visibles y enfoque en tu privacidad.
             </p>
           </div>
 

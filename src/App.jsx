@@ -402,7 +402,7 @@ function App() {
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 1</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 1</span>
                 <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Sube tu imagen</h2>
               </div>
               <div className="flex items-center gap-3">
@@ -450,8 +450,8 @@ function App() {
               ) : (
                 <div className="grid h-full w-full place-items-center gap-3 p-6 text-center">
                   <UploadCloud size={30} className="text-muted" />
-                  <strong className="text-[20px] font-semibold text-text">Selecciona una foto para empezar</strong>
-                  <span className="max-w-sm text-sm leading-6 text-muted">
+                  <strong className="text-[20px] font-semibold text-text/80">Selecciona una foto para empezar</strong>
+                  <span className="max-w-sm text-sm leading-6 text-muted/80">
                     JPG, JPEG, PNG o WebP. Usa una imagen ligera de hasta 5 MB y con el rostro bien iluminado.
                   </span>
                 </div>
@@ -500,7 +500,7 @@ function App() {
               <div className="min-h-[520px] p-5 sm:p-6">
                 <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 2</span>
+                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 2</span>
                     <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-text">Tu lectura ToneMap</h2>
                   </div>
                   <div className="flex items-center gap-2">
@@ -592,7 +592,7 @@ function App() {
             <article className="rounded-[28px] border border-white/10 bg-surface/80 p-0 shadow-elevated backdrop-blur-2xl sm:p-0">
               <div className="min-h-[160px] p-5 sm:p-6 flex items-center justify-between gap-4">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Paso 3</span>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 3</span>
                   <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.04em] text-text">Descarga tu infografía</h2>
                   <p className="mt-2 max-w-lg text-sm leading-7 text-muted sm:text-base">
                     Conserva tus resultados en un PDF elegante listo para imprimir o compartir.
