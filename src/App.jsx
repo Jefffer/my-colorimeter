@@ -197,6 +197,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [analysis, setAnalysis] = useState(null)
+  const [showMakeup, setShowMakeup] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [fileAlert, setFileAlert] = useState(null)
@@ -414,14 +415,30 @@ function App() {
                   {!isLoading ? <><FiLoader size={18} className="hidden" /> Analizar colorimetría <FiArrowRight size={18} /></> : <><FiLoader size={18} className="animate-spin" /> Analizando...</>}
                 </button>
 
-                <button
+                {/* <button
                   type="button"
                   onClick={loadMockData}
                   disabled={!previewUrl || isLoading}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-accent/30 bg-accent/5 px-5 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Probar con datos Demo
-                </button>
+                </button> */}
+
+                <div className="mt-3">
+                  <label htmlFor="show-makeup" className="flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      id="show-makeup"
+                      type="checkbox"
+                      className="sr-only"
+                      checked={showMakeup}
+                      onChange={(e) => setShowMakeup(e.target.checked)}
+                    />
+                    <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${showMakeup ? 'bg-accent' : 'bg-white/10'}`}>
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${showMakeup ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </div>
+                    <span className="text-sm font-medium text-white/80">Mostrar recomendaciones de maquillaje</span>
+                  </label>
+                </div>
               </div>
 
               {error && (
@@ -495,7 +512,15 @@ function App() {
                         <InsightCard icon={RiVipCrown2Line} title="Metales" value={report.best_metals.primary} description={report.best_metals.reason} />
                       )}
 
-                      {report.makeup_tips && (
+
+
+                      {report.hair_color_advice && (
+                        <div className="col-span-1 md:col-span-2">
+                          <InsightCard icon={RiScissors2Line} title="Estilismo de Cabello" value="Sugerencia de Color" description={report.hair_color_advice} />
+                        </div>
+                      )}
+
+                      {report.makeup_tips && showMakeup && (
                         <div className="col-span-1 md:col-span-2 relative overflow-hidden rounded-[20px] border border-accent/20 bg-accent/5 p-5 md:p-6 transition-colors hover:bg-accent/10">
                           <div className="absolute -right-8 -top-8 text-accent/10 pointer-events-none">
                             <HiOutlineSparkles size={140} />
@@ -518,12 +543,6 @@ function App() {
                               </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-
-                      {report.hair_color_advice && (
-                        <div className="col-span-1 md:col-span-2">
-                          <InsightCard icon={RiScissors2Line} title="Estilismo de Cabello" value="Sugerencia de Color" description={report.hair_color_advice} />
                         </div>
                       )}
                     </div>
