@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { Analytics } from "@vercel/analytics/next"
+// import { Analytics } from "@vercel/analytics/next"
 import { FiUploadCloud, FiInfo, FiAlertTriangle, FiArrowRight, FiLoader, FiRefreshCcw } from 'react-icons/fi'
 import { RiContrastDrop2Line, RiVipCrown2Line, RiScissors2Line } from 'react-icons/ri'
 import { HiOutlineSparkles } from 'react-icons/hi2'
