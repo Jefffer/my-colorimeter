@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, View, Text, StyleSheet, Svg, Path, Link } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet, Svg, Path, Link, Image } from '@react-pdf/renderer';
 
 // --- CONFIGURACIÓN DE TEMA ---
 const THEME = {
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 24,
+    marginBottom: 15,
     borderBottom: `1px solid ${THEME.surface}`,
     paddingBottom: 20,
   },
@@ -236,7 +236,7 @@ const SwatchCard = ({ color }) => (
   </View>
 );
 
-export default function InfographicDocument({ report = {} }) {
+export default function InfographicDocument({ report = {}, previewUrl = null }) {
   const { best_options = [], neutral_options = [], avoid_options = [] } = report;
 
   return (
@@ -254,7 +254,11 @@ export default function InfographicDocument({ report = {} }) {
           </View>
           
           <View style={styles.photoPlaceholder}>
-            <Text style={styles.photoText}>[ Foto del Usuario ]</Text>
+            {previewUrl ? (
+              <Image src={previewUrl} style={{ width: 80, height: 106, borderRadius: 6 }} />
+            ) : (
+              <Text style={styles.photoText}>[ Foto del Usuario ]</Text>
+            )}
           </View>
         </View>
 
@@ -268,7 +272,7 @@ export default function InfographicDocument({ report = {} }) {
 
         {/* SECCIÓN: ESTRELLAS */}
         {best_options.length > 0 && (
-          <View style={styles.section} wrap={false}>
+          <View style={styles.section} wrap={true}>
             <View style={styles.sectionHeader}>
               <Icons.Star />
               <Text style={styles.sectionTitle}>Tus Colores Estrella</Text>
@@ -281,7 +285,7 @@ export default function InfographicDocument({ report = {} }) {
 
         {/* SECCIÓN: NEUTROS */}
         {neutral_options.length > 0 && (
-          <View style={styles.section} wrap={false}>
+          <View style={styles.section} wrap={true}>
             <View style={styles.sectionHeader}>
               <Icons.Neutral />
               <Text style={styles.sectionTitle}>Neutros Elegantes</Text>
@@ -294,7 +298,7 @@ export default function InfographicDocument({ report = {} }) {
 
         {/* SECCIÓN: A EVITAR */}
         {avoid_options.length > 0 && (
-          <View style={styles.section} wrap={false}>
+          <View style={styles.section} wrap={true}>
             <View style={styles.sectionHeader}>
               <Icons.Avoid />
               <Text style={[styles.sectionTitle, { color: THEME.dangerSoft }]}>Tonos a Evitar</Text>

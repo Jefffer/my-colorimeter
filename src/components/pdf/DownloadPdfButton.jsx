@@ -3,14 +3,14 @@ import { pdf } from '@react-pdf/renderer'
 import InfographicDocument from './InfographicDocument'
 import { LoaderCircle } from 'lucide-react'
 
-export default function DownloadPdfButton({ report, fileName = 'ToneMap-Infographic.pdf' }) {
+export default function DownloadPdfButton({ report, previewUrl, fileName = 'ToneMap-Infographic.pdf' }) {
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleDownload = async () => {
     if (!report) return
     try {
       setIsGenerating(true)
-      const doc = <InfographicDocument report={report} />
+      const doc = <InfographicDocument report={report} previewUrl={previewUrl} />
       const asPdf = pdf()
       asPdf.updateContainer(doc)
       const blob = await asPdf.toBlob()

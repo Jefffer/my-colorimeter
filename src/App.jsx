@@ -650,7 +650,7 @@ function App() {
                 </div>
 
                 <div className="flex items-center">
-                  {analysis ? <DownloadPdfButton report={analysis} /> : null}
+                  {analysis ? <DownloadPdfButton report={analysis} previewUrl={previewUrl} /> : null}
                 </div>
               </div>
             </article>
