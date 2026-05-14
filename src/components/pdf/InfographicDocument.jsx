@@ -5,6 +5,7 @@ import { Document, Page, View, Text, StyleSheet, Svg, Path, Link, Image } from '
 const THEME = {
   bg: '#0c0d10',
   surface: '#161922',
+  surfaceBorder: '#232736', // Nuevo color para bordes sutiles
   text: '#f5efe7',
   muted: '#b9b2a9',
   accent: '#f0bf86',
@@ -44,7 +45,7 @@ const Icons = {
 const styles = StyleSheet.create({
   page: {
     padding: 40,
-    paddingBottom: 60, // Espacio para el footer
+    paddingBottom: 60,
     fontFamily: 'Helvetica',
     backgroundColor: THEME.bg,
     color: THEME.text,
@@ -54,61 +55,71 @@ const styles = StyleSheet.create({
   headerLayout: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 15,
-    borderBottom: `1px solid ${THEME.surface}`,
-    paddingBottom: 20,
+    alignItems: 'center', // Alineación central para equilibrar la foto grande
+    marginBottom: 20,
+    borderBottom: `1px solid ${THEME.surfaceBorder}`,
+    paddingBottom: 25,
   },
   titleWrapper: {
     flex: 1,
-    paddingRight: 20,
+    paddingRight: 25,
   },
   badge: {
     backgroundColor: THEME.surface,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
+    border: `1px solid ${THEME.surfaceBorder}`,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
     alignSelf: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   badgeText: {
     color: THEME.accent,
     fontSize: 8,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
   title: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: 'bold',
     color: THEME.text,
-    marginBottom: 8,
+    marginBottom: 10,
     lineHeight: 1.1,
   },
   subtitle: {
-    fontSize: 10,
+    fontSize: 10.5,
     color: THEME.muted,
-    lineHeight: 1.4,
+    lineHeight: 1.5,
   },
   
-  // --- PLACEHOLDER FOTO USUARIO ---
-  photoPlaceholder: {
-    width: 80,
-    height: 106,
-    backgroundColor: THEME.surface,
-    borderRadius: 6,
-    border: `1px dashed rgba(255,255,255,0.15)`,
+  // --- FOTO USUARIO REFACTORIZADA ---
+  photoContainer: {
+    width: 120,    // Foto mucho más grande
+    height: 160,
+    borderRadius: 8,
+    overflow: 'hidden', // Importante para que el objectFit respete el border radius
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Estilo condicional solo cuando NO hay imagen
+  photoPlaceholderEmpty: {
+    backgroundColor: THEME.surface,
+    border: `1.5px dashed rgba(255,255,255,0.15)`,
+  },
   photoText: {
-    fontSize: 8,
+    fontSize: 9,
     color: THEME.muted,
     textAlign: 'center',
     padding: 10,
   },
+  userImage: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover', // Asegura que la imagen rellene el contenedor sin deformarse
+  },
 
-  // --- CALLOUT BOX (Por qué funciona) ---
+  // --- CALLOUT BOX ---
   analysisBox: {
     backgroundColor: THEME.surface,
     borderRadius: 8,
@@ -123,12 +134,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   analysisText: {
-    fontSize: 9,
+    fontSize: 9.5,
     color: THEME.text,
-    lineHeight: 1.5,
+    lineHeight: 1.6,
   },
 
-  // --- GRID DE 3 COLUMNAS ---
+  // --- GRIDS ---
   section: {
     marginBottom: 20,
   },
@@ -142,6 +153,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
     color: THEME.text,
+    letterSpacing: 0.5,
   },
   grid: {
     flexDirection: 'row',
@@ -151,25 +163,32 @@ const styles = StyleSheet.create({
   
   // --- TARJETAS INFORMATIVAS ---
   card: {
-    width: '31.5%',
     backgroundColor: THEME.surface,
-    borderRadius: 6,
+    border: `1px solid ${THEME.surfaceBorder}`, // Borde sutil para darle profundidad
+    borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 10,
   },
+  // Variaciones de ancho dinámicas
+  card3Col: { width: '31.5%' },
+  card4Col: { width: '23.5%' }, // 4 columnas para los neutros
+  
   colorBlock: {
-    height: 35,
+    height: 38,
     width: '100%',
   },
   cardContent: {
-    padding: 8,
-    height: 60, // Altura fija para alinear el texto de las razones
+    padding: 10,
   },
+  // Alturas fijas para asegurar alineación visual perfecta
+  cardContent3Col: { height: 52 },
+  cardContent4Col: { height: 52 }, // Más alto en 4 cols para compensar el ancho estrecho
+  
   colorHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   colorName: {
     fontSize: 8,
@@ -178,23 +197,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   colorHex: {
-    fontSize: 6,
+    fontSize: 6.5,
     color: THEME.muted,
     fontFamily: 'Courier',
   },
   colorReason: {
     fontSize: 6.5,
     color: THEME.muted,
-    lineHeight: 1.3,
+    lineHeight: 1.4,
   },
 
-  // --- FOOTER REDES SOCIALES ---
+  // --- FOOTER ---
   footer: {
     position: 'absolute',
     bottom: 25,
     left: 40,
     right: 40,
-    borderTop: `1px solid ${THEME.surface}`,
+    borderTop: `1px solid ${THEME.surfaceBorder}`,
     paddingTop: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -222,15 +241,14 @@ const styles = StyleSheet.create({
 });
 
 // Componente para la Tarjeta de Color con Razón
-const SwatchCard = ({ color }) => (
-  <View style={styles.card}>
+const SwatchCard = ({ color, isFourCol = false }) => (
+  <View style={[styles.card, isFourCol ? styles.card4Col : styles.card3Col]}>
     <View style={[styles.colorBlock, { backgroundColor: color.hex }]} />
-    <View style={styles.cardContent}>
+    <View style={[styles.cardContent, isFourCol ? styles.cardContent4Col : styles.cardContent3Col]}>
       <View style={styles.colorHeader}>
         <Text style={styles.colorName} numberOfLines={1}>{color.name}</Text>
         <Text style={styles.colorHex}>{color.hex.toUpperCase()}</Text>
       </View>
-      {/* Mostramos la razón analítica */}
       <Text style={styles.colorReason}>{color.reason}</Text>
     </View>
   </View>
@@ -243,26 +261,27 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
     <Document>
       <Page size="A4" style={styles.page}>
         
-        {/* CABECERA (Héroe + Badge + Placeholder Foto) */}
+        {/* CABECERA */}
         <View style={styles.headerLayout}>
           <View style={styles.titleWrapper}>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>Subtono: {report.undertone || 'Desconocido'}</Text>
             </View>
             <Text style={styles.title}>{report.season || 'Tu Análisis ToneMap'}</Text>
-            <Text style={styles.subtitle}>{report.summary || 'Resumen de tu colorimetría.'}</Text>
+            <Text style={styles.subtitle}>{report.summary || 'Resumen completo de tu colorimetría.'}</Text>
           </View>
           
-          <View style={styles.photoPlaceholder}>
+          {/* FOTOGRAFÍA: Dinámica según si existe URL o no */}
+          <View style={[styles.photoContainer, !previewUrl && styles.photoPlaceholderEmpty]}>
             {previewUrl ? (
-              <Image src={previewUrl} style={{ width: 80, height: 106, borderRadius: 6 }} />
+              <Image src={previewUrl} style={styles.userImage} />
             ) : (
               <Text style={styles.photoText}>[ Foto del Usuario ]</Text>
             )}
           </View>
         </View>
 
-        {/* CALLOUT BOX: ¿Por qué funciona? */}
+        {/* CALLOUT BOX */}
         {report.why_this_works && (
           <View style={styles.analysisBox}>
             <Text style={styles.analysisTitle}>¿Por qué esta es tu paleta?</Text>
@@ -270,9 +289,9 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
           </View>
         )}
 
-        {/* SECCIÓN: ESTRELLAS */}
+        {/* SECCIÓN: ESTRELLAS (3 Columnas) */}
         {best_options.length > 0 && (
-          <View style={styles.section} wrap={true}>
+          <View style={styles.section} wrap={false}>
             <View style={styles.sectionHeader}>
               <Icons.Star />
               <Text style={styles.sectionTitle}>Tus Colores Estrella</Text>
@@ -283,7 +302,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
           </View>
         )}
 
-        {/* SECCIÓN: NEUTROS */}
+        {/* SECCIÓN: NEUTROS (1 Fila de 4 Columnas) */}
         {neutral_options.length > 0 && (
           <View style={styles.section} wrap={true}>
             <View style={styles.sectionHeader}>
@@ -291,14 +310,17 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
               <Text style={styles.sectionTitle}>Neutros Elegantes</Text>
             </View>
             <View style={styles.grid}>
-              {neutral_options.map((c, i) => <SwatchCard key={`neutral-${i}`} color={c} />)}
+              {/* Forzamos que solo tome los primeros 4 para garantizar 1 sola fila plana */}
+              {neutral_options.slice(0, 4).map((c, i) => (
+                <SwatchCard key={`neutral-${i}`} color={c} isFourCol={true} />
+              ))}
             </View>
           </View>
         )}
 
-        {/* SECCIÓN: A EVITAR */}
+        {/* SECCIÓN: A EVITAR (3 Columnas) */}
         {avoid_options.length > 0 && (
-          <View style={styles.section} wrap={true}>
+          <View style={styles.section} wrap={false}>
             <View style={styles.sectionHeader}>
               <Icons.Avoid />
               <Text style={[styles.sectionTitle, { color: THEME.dangerSoft }]}>Tonos a Evitar</Text>
@@ -312,7 +334,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
         {/* FOOTER */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
-            Generado por <Text style={styles.footerBrand}>ToneMap AI</Text>
+            Generado por <Text style={styles.footerBrand}>ToneMap</Text>
           </Text>
           
           <View style={styles.socialGroup}>
@@ -322,7 +344,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
             </Link>
             <Link src="https://www.linkedin.com/in/jefffer/" style={styles.socialLink}>
               <Icons.Linkedin />
-              <Text style={styles.footerText}>LinkedIn</Text>
+              <Text style={styles.footerText}>/jefffer</Text>
             </Link>
           </View>
         </View>

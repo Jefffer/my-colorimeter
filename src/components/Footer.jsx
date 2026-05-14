@@ -42,7 +42,7 @@ export default function Footer({ onVisibleChange }) {
                 Gemini
                 <SiGooglegemini className="h-[1.05em] w-[1.05em] shrink-0 ttext-[#4f86ff]/90 transition hover:text-[#7ab4ff]/90 drop-shadow-[0_0_10px_rgba(79,134,255,0.28)]" aria-hidden="true" />
               </a>
-              , sin guardar tu foto.
+                {' '}sin guardar tu foto.
             </h3>
             <p className="mt-4 max-w-2xl text-sm text-muted/90">
               El análisis se genera para ti y no se almacena en ningún servidor. Desarrollo transparente y OpenSource, procesos visibles y enfoque en tu privacidad.

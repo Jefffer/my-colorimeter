@@ -71,7 +71,7 @@ export const mockGeminiResponse = {
         {
           name: 'Azul Acero',
           hex: '#4682B4',
-          reason: 'Funciona como un negro más suave y favorecedor.',
+          reason: 'Funciona como un negro más suave y favorecedor para tu paleta en general.',
         },
       ],
       avoid_options: [
