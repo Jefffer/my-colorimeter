@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import Tippy from '@tippyjs/react'
 import 'tippy.js/dist/tippy.css'
 import DownloadPdfButton from './components/pdf/DownloadPdfButton'
+import { mockGeminiResponse } from './mockGeminiResponse'
 
 const fallbackReport = {
   season: 'Tu lectura ToneMap',
@@ -275,6 +276,36 @@ function App() {
     setFileAlert(null)
   }
 
+  // DESARROLLO: Cargar datos de prueba sin llamar a Gemini
+  // Descomenta el botón bajo "Analizar colorimetria" para ejecutar pruebas rápidas
+  const loadMockData = () => {
+    if (!previewUrl) {
+      setError('Sube una imagen primero para cargar los datos de prueba')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      // Simular delay de red para que se vea como una operación real
+      setTimeout(() => {
+        const normalized = normalizeApiReport(mockGeminiResponse.payload, '')
+        if (normalized) {
+          setAnalysis(normalized)
+          console.info('toneMap: datos de prueba cargados exitosamente')
+        } else {
+          setError('No se pudo procesar los datos de prueba')
+        }
+        setIsLoading(false)
+      }, 1200)
+    } catch (error) {
+      setError('Error al cargar datos de prueba: ' + error.message)
+      console.error('toneMap: error cargando mock:', error)
+      setIsLoading(false)
+    }
+  }
+
   const handleGenerate = async (event) => {
     event.preventDefault()
     event.stopPropagation()
@@ -479,6 +510,25 @@ function App() {
                   </>
                 )}
               </button>
+
+              {/* DESARROLLO: Botón de prueba - Descomenta para testing con datos mock */}
+              {/* <button
+                type="button"
+                onClick={loadMockData}
+                disabled={!previewUrl || isLoading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-accent/40 bg-accent/5 px-5 py-4 font-extrabold text-accent shadow-[0_16px_36px_rgba(240,191,134,0.08)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {!isLoading ? (
+                  <>
+                    🧪 Cargar datos de prueba
+                  </>
+                ) : (
+                  <>
+                    <LoaderCircle size={18} className="animate-spin" />
+                    Cargando...
+                  </>
+                )}
+              </button> */}
             </div>
 
             {error ? (

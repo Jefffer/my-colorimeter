@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 api/local-secrets.local
+api/mock-response.local
 api/debug-log.jsonl
 
 # Editor directories and files

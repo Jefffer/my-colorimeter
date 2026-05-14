@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 700,
-    color: '#F0BF86',
+    color: '#F0BF86', // color de acento para el título
   },
   subtitle: {
     fontSize: 12,
@@ -94,7 +94,7 @@ export default function InfographicDocument({ report = {} }) {
             </View>
           </View>
 
-          <View style={styles.col}>
+          {/* <View style={styles.col}>
             <Text style={styles.sectionTitle}>Meta</Text>
             <Text style={styles.paragraph}>Infografía de resultados para conservar y compartir.</Text>
 
@@ -102,7 +102,7 @@ export default function InfographicDocument({ report = {} }) {
               <Text style={styles.sectionTitle}>Extracto</Text>
               <Text style={styles.paragraph}>{report.summary || ''}</Text>
             </View>
-          </View>
+          </View> */}
         </View>
 
         <View style={styles.section}>
@@ -152,7 +152,11 @@ export default function InfographicDocument({ report = {} }) {
 
         <View style={{ marginTop: 24 }}>
           <Text style={{ fontSize: 9, color: '#9CA3AF' }}>
-            Generado por ToneMap — conserva este PDF para referencia y comparte con quien quieras.
+            Generado por 
+            <Text style={{ fontSize: 9, color: '#F0BF86' }}>
+              &nbsp;ToneMap&nbsp;
+            </Text>
+            | conserva este PDF para referencia y compartelo con quien quieras.
           </Text>
         </View>
       </Page>
