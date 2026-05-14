@@ -16,10 +16,20 @@ export const mockGeminiResponse = {
       },
       season: 'Verano Claro',
       undertone: 'Frío/Neutro',
+      contrast_level: 'Medio - funciona mejor con armonías suaves y detalles limpios.',
       summary:
         'Tu paleta ideal consiste en colores suaves, luminosos y con una base fría que complementan tu bajo contraste natural.',
       why_this_works:
         'Los tonos pasteles y empolvados realzan la claridad de tu piel y el brillo de tus ojos sin sobrecargar tus facciones delicadas.',
+      best_metals: {
+        primary: 'Plata satinada',
+        reason: 'Acompaña tu subtono frío sin endurecer los rasgos.',
+      },
+      makeup_tips: {
+        lipstick: 'Rosa frío, malva suave o nude rosado.',
+        blush: 'Rosa bebé o rosa fresco, con aplicación ligera.',
+      },
+      hair_color_advice: 'Favorecen los castaños fríos, los reflejos ceniza suaves y evitar el negro azabache.',
       best_options: [
         {
           name: 'Azul Cielo',

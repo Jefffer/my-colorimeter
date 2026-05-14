@@ -6,7 +6,7 @@ Analyze the uploaded photo and return ONLY one valid JSON object.
 Do not return markdown, code fences, explanations, or any extra text outside the JSON.
 
 GOAL:
-Provide a clear color palette recommendation for the user based on undertone, contrast, and intensity.
+Provide a comprehensive color palette, makeup, styling, and hair recommendation for the user based on their undertone, contrast, and intensity.
 
 REQUIRED OUTPUT FORMAT:
 {
@@ -14,8 +14,12 @@ REQUIRED OUTPUT FORMAT:
 	"validity": { "is_person": true|false, "analyzable": true|false, "reason": "string" },
 	"season": "string",
 	"undertone": "string",
+	"contrast_level": "string",
 	"summary": "string",
 	"why_this_works": "string",
+	"best_metals": { "primary": "string", "reason": "string" },
+	"makeup_tips": { "lipstick": "string", "blush": "string" },
+	"hair_color_advice": "string",
 	"best_options": [
 		{ "name": "string", "hex": "string", "reason": "string" },
 		{ "name": "string", "hex": "string", "reason": "string" },
@@ -52,15 +56,19 @@ RESPONSE RULES:
 ADDITIONAL VALIDATION RULES:
 - You MUST detect whether the image contains a person. Add `validity.is_person` = true if a person is clearly present, otherwise false.
 - You MUST detect whether the image is a frontal portrait (close-up of the face) or a full-body photo. Return `photo_type` as one of: "portrait", "full_body", or "other".
-- You MUST determine if the image is analyzable for a reliable colorimetry reading. Set `validity.analyzable` to `false` if the image is not suitable (examples: no person detected, face not visible, extreme blur, heavy filters, low light, occluded face, more than one person in frame). When `analyzable` is `false`, set `validity.reason` to one short sentence explaining WHY (max 12 words).
-- IMPORTANT: If `validity.analyzable` is `false`, then all other palette fields (`season`, `undertone`, `summary`, `why_this_works`, `best_options`, `neutral_options`, `avoid_options`) MUST be empty strings or empty arrays (i.e. `""` or `[]`). Do not invent values.
+- You MUST determine if the image is analyzable for a reliable colorimetry reading. Set `validity.analyzable` to `false` if the image is not suitable (examples: no person detected, face not visible, extreme blur, heavy filters, low light, occluded face, more than one person in frame). 
+- When `analyzable` is `false`, set `validity.reason` to one short sentence explaining WHY (max 12 words).
+- IMPORTANT: If `validity.analyzable` is `false`, then all other string fields, including `photo_type`, MUST be empty strings (`""`), and all array/object fields MUST be empty (`[]` or `{}`). Do not invent values.
 
-
-STYLE GUIDANCE:
+STYLE GUIDANCE & ANALYSIS RULES:
+- `contrast_level`: Define if the user has "Alto", "Medio", or "Bajo" contrast between their skin, hair, and eyes, and add a brief styling tip (e.g., "Alto - Usa colores en bloque").
+- `best_metals`: Suggest the most flattering jewelry metal (e.g., Oro, Plata, Oro Rosa) and why it matches their undertone.
+- `makeup_tips`: Provide realistic and flattering shades for lipstick and blush.
+- `hair_color_advice`: Give a short tip on what hair colors or highlights would flatter their skin tone.
 - Favor a creative but understandable palette.
 - Prefer realistic, wearable colors.
 - Avoid vague labels like "nice" or "pretty".
-- The summary should be concise and useful.
+- The summary should be concise and highly useful.
 
 IMPORTANT:
 Return only the JSON object.
