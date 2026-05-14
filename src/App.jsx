@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 // Íconos elegantes de react-icons
-import { FiUploadCloud, FiInfo, FiAlertTriangle, FiArrowRight, FiLoader } from 'react-icons/fi'
+import { FiUploadCloud, FiInfo, FiAlertTriangle, FiArrowRight, FiLoader, FiRefreshCcw } from 'react-icons/fi'
 import { RiContrastDrop2Line, RiVipCrown2Line, RiScissors2Line } from 'react-icons/ri'
 import { HiOutlineSparkles } from 'react-icons/hi2'
 
@@ -16,7 +16,7 @@ const fallbackReport = {
   season: 'Tu lectura ToneMap',
   undertone: 'Cálido',
   contrast_level: 'Medio-Alto',
-  summary: 'ToneMap devuelve una guía limpia y accionable para tu colorimetría.',
+  summary: 'ToneMap devuelve una guía limpia y accionable para tu colorimetría. Descubre qué tonos iluminan tu rostro y cuáles debes evitar.',
   why_this_works:
     'La lectura se centra en equilibrar contraste, calidez y presencia visual para que tus colores funcionen en conjunto. Resalta tus facciones de forma natural.',
   best_metals: {
@@ -363,7 +363,6 @@ function App() {
 
       <Hero onCtaClick={scrollToUpload} />
 
-      {/* FONDO SÓLIDO PROFUNDO */}
       <div className="min-h-screen bg-[#0A0B0E]">
         <div className="mx-auto flex w-full max-w-[1260px] flex-col gap-6 px-4 py-6 font-sans sm:px-6 lg:py-8">
 
@@ -435,32 +434,47 @@ function App() {
               )}
             </article>
 
-            {/* PANEL DERECHO: RESULTADOS (Separado en bloques libres) */}
-            <div className="flex flex-col gap-8 md:gap-12">
+            {/* PANEL DERECHO: RESULTADOS */}
+            <div className="flex flex-col gap-6 md:gap-8">
               
               {analysis ? (
                 <>
-                  {/* BLOQUE 1: HEADER E INSIGHTS (Con fondo y glassmorphism) */}
+                  {/* PASO 2: HEADER E INSIGHTS */}
                   <article className="rounded-[28px] border border-white/5 bg-surface/60 p-5 md:p-8 shadow-elevated backdrop-blur-2xl">
-                    <div className="mb-8 flex items-center justify-between">
-                      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 2</span>
+                    <div className="mb-8 flex items-start justify-between">
+                      <div>
+                        <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 2</span>
+                        <h2 className="mt-1 md:mt-2 text-xl md:text-[22px] font-light tracking-wide text-white/90">Tus Resultados</h2>
+                      </div>
                       <button
                         type="button"
                         onClick={handleClear}
-                        className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                        className="group flex items-center gap-1.5 md:gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 md:px-4 md:py-2 transition-all hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400 text-white/60"
                       >
-                        Limpiar
+                        <FiRefreshCcw size={14} className="transition-transform group-hover:-rotate-180 duration-500" />
+                        <span className="hidden sm:inline text-xs font-semibold">Limpiar todo</span>
+                        <span className="sm:hidden text-[10px] font-semibold">Limpiar</span>
                       </button>
                     </div>
 
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-2">
                       <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">Estación / Paleta</span>
                       <h3 className="text-3xl md:text-[40px] font-light tracking-wide text-white/90">
                         {report.season}
                       </h3>
-                      <div className="mt-2 inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                        <span className="text-[9px] uppercase tracking-widest text-white/50">Subtono</span>
-                        <span className="text-[11px] font-bold text-white/90">{report.undertone}</span>
+                      
+                      {/* Summary Integrado */}
+                      {report.summary && (
+                        <p className="mt-1 max-w-2xl text-sm md:text-base leading-relaxed text-white/60 font-light">
+                          {report.summary}
+                        </p>
+                      )}
+
+                      {/* Subtono Resaltado */}
+                      <div className="mt-4 inline-flex items-center gap-2.5 self-start rounded-xl border border-accent/30 bg-[linear-gradient(135deg,rgba(240,191,134,0.15)_0%,rgba(240,191,134,0.05)_100%)] px-4 py-2 shadow-[0_0_20px_rgba(240,191,134,0.05)]">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent/70">Subtono</span>
+                        <div className="w-px h-3 bg-accent/30" />
+                        <span className="text-sm font-semibold tracking-wide text-accent">{report.undertone}</span>
                       </div>
                     </div>
 
@@ -473,7 +487,6 @@ function App() {
                       </div>
                     )}
 
-                    {/* CUADRÍCULA DE INSIGHTS REFACTORIZADA */}
                     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
                       {report.contrast_level && (
                         <InsightCard icon={RiContrastDrop2Line} title="Contraste" value={report.contrast_level} />
@@ -482,7 +495,6 @@ function App() {
                         <InsightCard icon={RiVipCrown2Line} title="Metales" value={report.best_metals.primary} description={report.best_metals.reason} />
                       )}
 
-                      {/* Tarjeta Destacada de Maquillaje (Ocupa 2 columnas) */}
                       {report.makeup_tips && (
                         <div className="col-span-1 md:col-span-2 relative overflow-hidden rounded-[20px] border border-accent/20 bg-accent/5 p-5 md:p-6 transition-colors hover:bg-accent/10">
                           <div className="absolute -right-8 -top-8 text-accent/10 pointer-events-none">
@@ -509,7 +521,6 @@ function App() {
                         </div>
                       )}
 
-                      {/* Tarjeta de Cabello */}
                       {report.hair_color_advice && (
                         <div className="col-span-1 md:col-span-2">
                           <InsightCard icon={RiScissors2Line} title="Estilismo de Cabello" value="Sugerencia de Color" description={report.hair_color_advice} />
@@ -518,34 +529,41 @@ function App() {
                     </div>
                   </article>
 
-                  {/* BLOQUE 2: LISTAS DE COLORES "LIBRES" */}
-                  <div className="pb-4">
-                    <ColorList
-                      title="Mejores opciones"
-                      subtitle="Tus colores estrella para prendas principales."
-                      items={report.best_options}
-                      accentClass="border-amber-300/20 bg-amber-300/10 text-amber-200"
-                    />
-                    <SectionDivider />
-                    <ColorList
-                      title="Neutros"
-                      subtitle="Tus bases para combinar y piezas de fondo de armario."
-                      items={report.neutral_options}
-                      accentClass="border-slate-300/20 bg-slate-300/10 text-slate-200"
-                    />
-                    <SectionDivider />
-                    <ColorList
-                      title="A evitar"
-                      subtitle="Tonos que compiten con tu piel o la endurecen."
-                      items={report.avoid_options}
-                      accentClass="border-rose-300/20 bg-rose-300/10 text-rose-200"
-                    />
-                  </div>
+                  {/* PASO 3: LISTAS DE COLORES (Contenedor Nuevo) */}
+                  <article className="rounded-[28px] border border-white/5 bg-surface/60 p-5 md:p-8 shadow-elevated backdrop-blur-2xl">
+                    <div className="mb-6 md:mb-8">
+                      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 3</span>
+                      <h2 className="mt-1 md:mt-2 text-xl md:text-[22px] font-light tracking-wide text-white/90">Tu Paleta de Colores</h2>
+                    </div>
 
-                  {/* BLOQUE 3: DESCARGAR PDF */}
+                    <div className="pb-2">
+                      <ColorList
+                        title="Mejores opciones"
+                        subtitle="Tus colores estrella para prendas principales."
+                        items={report.best_options}
+                        accentClass="border-amber-300/20 bg-amber-300/10 text-amber-200"
+                      />
+                      <SectionDivider />
+                      <ColorList
+                        title="Neutros"
+                        subtitle="Tus bases para combinar y piezas de fondo de armario."
+                        items={report.neutral_options}
+                        accentClass="border-slate-300/20 bg-slate-300/10 text-slate-200"
+                      />
+                      <SectionDivider />
+                      <ColorList
+                        title="A evitar"
+                        subtitle="Tonos que compiten con tu piel o la endurecen."
+                        items={report.avoid_options}
+                        accentClass="border-rose-300/20 bg-rose-300/10 text-rose-200"
+                      />
+                    </div>
+                  </article>
+
+                  {/* PASO 4: DESCARGAR PDF */}
                   <article className="rounded-[28px] border border-white/5 bg-surface/60 p-5 md:p-8 shadow-elevated backdrop-blur-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div>
-                      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 3</span>
+                      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 4</span>
                       <h2 className="mt-2 text-lg md:text-xl font-medium tracking-wide text-white/90">Guarda tu reporte</h2>
                       <p className="mt-1 md:mt-2 max-w-sm text-xs md:text-sm leading-relaxed text-white/50 font-light">
                         Descarga tu infografía y llévala contigo cuando vayas de compras o al salón.
@@ -557,14 +575,14 @@ function App() {
                   </article>
                 </>
               ) : (
-                /* ESTADO VACÍO (Placeholder gigante) */
+                /* ESTADO VACÍO */
                 <article className="rounded-[28px] border border-white/5 bg-surface/60 p-4 shadow-elevated backdrop-blur-2xl min-h-[500px] flex items-center justify-center">
                   <div className="grid place-items-center text-center px-4 max-w-md">
                     <strong className="block text-xl md:text-[22px] font-light tracking-wide text-white/90">
-                      Tu perfil aparecerá aquí
+                      Tu análisis ToneMap aparecerá aquí
                     </strong>
                     <p className="mt-3 text-sm leading-relaxed text-white/50 font-light">
-                      Añade tu foto y presiona el botón para descubrir tu colorimetría, maquillaje ideal y recomendaciones de estilo.
+                      Añade tu foto y presiona el botón para descubrir tu colorimetría y recomendaciones de estilo.
                     </p>
                   </div>
                 </article>
