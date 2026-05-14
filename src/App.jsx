@@ -512,7 +512,7 @@ function App() {
               </button>
 
               {/* DESARROLLO: Botón de prueba - Descomenta para testing con datos mock */}
-              <button
+              {/* <button
                 type="button"
                 onClick={loadMockData}
                 disabled={!previewUrl || isLoading}
@@ -528,7 +528,7 @@ function App() {
                     Cargando...
                   </>
                 )}
-              </button>
+              </button> */}
             </div>
 
             {error ? (
