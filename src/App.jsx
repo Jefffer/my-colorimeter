@@ -145,7 +145,7 @@ function ColorList({ title, subtitle, items, accentClass }) {
                   {item.hex}
                 </span>
               </div>
-              <p className="text-[11px] md:text-xs leading-relaxed text-white/50 font-light line-clamp-3 md:line-clamp-none">{item.reason}</p>
+              <p className="text-[11px] md:text-xs leading-relaxed text-white/50 font-light">{item.reason}</p>
             </div>
           </article>
         ))}
@@ -365,7 +365,7 @@ function App() {
       <Hero onCtaClick={scrollToUpload} />
 
       <div className="min-h-screen bg-[#0A0B0E]">
-        <div className="mx-auto flex w-full max-w-[1260px] flex-col gap-6 px-4 py-6 font-sans sm:px-6 lg:py-8">
+        <div className="mx-auto flex w-full max-w-[1260px] flex-col gap-6 px-0 py-6 font-sans sm:px-4 md:px-6 lg:py-8">
 
           <section className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] xl:grid-cols-[380px_minmax(0,1fr)]">
             
