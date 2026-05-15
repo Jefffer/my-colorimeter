@@ -31,7 +31,7 @@ const fallbackReport = {
   best_options: [
     { name: 'Marfil', hex: '#F3E7D7', reason: 'Base suave que ilumina sin endurecer.' },
     { name: 'Terracota', hex: '#B86A4B', reason: 'Acento cálido con mucha presencia.' },
-    { name: 'Oliva ahumado', hex: '#7E8661', reason: 'Equilibrio natural para looks sobrios.' },
+    { name: 'Oliva ahumado', hex: '#7E8661', reason: 'Color interesantemente interesante. Equilibrio natural para looks sobrios.' },
     { name: 'Cacao', hex: '#4A342D', reason: 'Profundidad elegante y estable.' },
     { name: 'Mostaza', hex: '#D4A373', reason: 'Aporta energía y resalta tus facciones.' },
     { name: 'Rojo Ladrillo', hex: '#9C3D38', reason: 'Poderoso y vibrante para destacar.' },
@@ -415,14 +415,14 @@ function App() {
                   {!isLoading ? <><FiLoader size={18} className="hidden" /> Analizar colorimetría <FiArrowRight size={18} /></> : <><FiLoader size={18} className="animate-spin" /> Analizando...</>}
                 </button>
 
-                {/* <button
+                <button
                   type="button"
                   onClick={loadMockData}
                   disabled={!previewUrl || isLoading}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-accent/30 bg-accent/5 px-5 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Probar con datos Demo
-                </button> */}
+                </button>
 
                 <div className="mt-3">
                   <label htmlFor="show-makeup" className="flex items-center gap-3 cursor-pointer select-none">
