@@ -34,7 +34,7 @@ const fallbackReport = {
     { name: 'Oliva ahumado', hex: '#7E8661', reason: 'Color interesantemente interesante. Equilibrio natural para looks sobrios.' },
     { name: 'Cacao', hex: '#4A342D', reason: 'Profundidad elegante y estable.' },
     { name: 'Mostaza', hex: '#D4A373', reason: 'Aporta energía y resalta tus facciones.' },
-    { name: 'Rojo Ladrillo', hex: '#9C3D38', reason: 'Poderoso y vibrante para destacar.' },
+    { name: 'Rojo Ladrillo', hex: '#9C3D38', reason: 'Poderoso y vibrante para destacar tu rostro y ojos, además de aportar un toque de calidez.' },
   ],
   neutral_options: [
     { name: 'Beige arena', hex: '#D8C7B0', reason: 'Base limpia y versátil.' },

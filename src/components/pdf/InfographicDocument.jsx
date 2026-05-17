@@ -1,5 +1,19 @@
 import React from 'react';
-import { Document, Page, View, Text, StyleSheet, Svg, Path, Link, Image } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet, Svg, Path, Link, Image, Font } from '@react-pdf/renderer';
+import sora400 from '@fontsource/sora/files/sora-latin-400-normal.woff';
+import sora600 from '@fontsource/sora/files/sora-latin-600-normal.woff';
+
+// --- REGISTRAR FUENTES ---
+Font.register({
+  family: 'Sora',
+  src: sora400,
+  fontWeight: 400,
+});
+Font.register({
+  family: 'Sora',
+  src: sora600,
+  fontWeight: 600,
+});
 
 // --- CONFIGURACIÓN DE TEMA ---
 const THEME = {
@@ -17,6 +31,11 @@ const Icons = {
   Star: () => (
     <Svg width="14" height="14" viewBox="0 0 24 24">
       <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill={THEME.accent} />
+    </Svg>
+  ),
+  Sparkle: () => (
+    <Svg width="14" height="14" viewBox="0 0 24 24">
+      <Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill={THEME.accent} />
     </Svg>
   ),
   Neutral: () => (
@@ -46,7 +65,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 40,
     paddingBottom: 60,
-    fontFamily: 'Helvetica',
+    fontFamily: 'Sora',
     backgroundColor: THEME.bg,
     color: THEME.text,
   },
@@ -93,9 +112,8 @@ const styles = StyleSheet.create({
     lineHeight: 1.5,
   },
   
-  // --- FOTO USUARIO REFACTORIZADA ---
   photoContainer: {
-    width: 120,    // Foto mucho más grande
+    width: 120,
     height: 160,
     borderRadius: 8,
     overflow: 'hidden', // Importante para que el objectFit respete el border radius
@@ -137,6 +155,59 @@ const styles = StyleSheet.create({
     fontSize: 9.5,
     color: THEME.text,
     lineHeight: 1.6,
+  },
+
+  styleSection: {
+    marginBottom: 18,
+  },
+  styleGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  styleCard: {
+    width: '48.5%',
+    backgroundColor: THEME.surface,
+    border: `1px solid ${THEME.surfaceBorder}`,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 10,
+  },
+  styleCardAccent: {
+    height: 2,
+    width: '100%',
+    backgroundColor: THEME.accent,
+    borderRadius: 999,
+    marginBottom: 10,
+  },
+  styleCardLabel: {
+    fontSize: 8,
+    color: THEME.accent,
+    fontWeight: 'bold',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    marginBottom: 5,
+  },
+  styleCardValue: {
+    fontSize: 10.5,
+    color: THEME.text,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    lineHeight: 1.3,
+  },
+  styleCardText: {
+    fontSize: 8,
+    color: THEME.muted,
+    lineHeight: 1.45,
+  },
+  makeupList: {
+    marginTop: 4,
+  },
+  makeupLine: {
+    fontSize: 8,
+    color: THEME.muted,
+    lineHeight: 1.45,
+    marginTop: 2,
   },
 
   // --- GRIDS ---
@@ -286,6 +357,57 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
           <View style={styles.analysisBox}>
             <Text style={styles.analysisTitle}>¿Por qué esta es tu paleta?</Text>
             <Text style={styles.analysisText}>{report.why_this_works}</Text>
+          </View>
+        )}
+
+        {/* SECCIÓN: DETALLES DE ESTILO */}
+        {(report.contrast_level || report.best_metals || report.makeup_tips || report.hair_color_advice) && (
+          <View style={styles.styleSection} wrap={false}>
+            <View style={styles.sectionHeader}>
+              <Icons.Sparkle />
+              <Text style={styles.sectionTitle}>Detalles de estilo</Text>
+            </View>
+
+            <View style={styles.styleGrid}>
+              {report.contrast_level && (
+                <View style={styles.styleCard}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Contraste</Text>
+                  <Text style={styles.styleCardValue}>{report.contrast_level}</Text>
+                  <Text style={styles.styleCardText}>Usa este nivel como referencia para construir looks más armónicos.</Text>
+                </View>
+              )}
+
+              {report.best_metals && (
+                <View style={styles.styleCard}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Metales</Text>
+                  <Text style={styles.styleCardValue}>{report.best_metals.primary}</Text>
+                  <Text style={styles.styleCardText}>{report.best_metals.reason}</Text>
+                </View>
+              )}
+
+              {report.makeup_tips && (
+                <View style={styles.styleCard}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Maquillaje ideal</Text>
+                  <Text style={styles.styleCardValue}>Labios: {report.makeup_tips.lipstick}</Text>
+                  <Text style={styles.styleCardText}>Rubor: {report.makeup_tips.blush}</Text>
+                  {/* <View style={styles.makeupList}>
+                    <Text style={styles.makeupLine}>Piensa en acabados suaves y colores que mantengan la naturalidad del rostro.</Text>
+                  </View> */}
+                </View>
+              )}
+
+              {report.hair_color_advice && (
+                <View style={styles.styleCard}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Cabello</Text>
+                  <Text style={styles.styleCardValue}>Sugerencia de color</Text>
+                  <Text style={styles.styleCardText}>{report.hair_color_advice}</Text>
+                </View>
+              )}
+            </View>
           </View>
         )}
 
