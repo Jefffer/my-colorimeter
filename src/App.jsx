@@ -125,7 +125,7 @@ function ColorList({ title, subtitle, items, accentClass }) {
           <p className="mt-1 text-[11px] md:text-sm text-white/50 font-light tracking-wide">{subtitle}</p>
         </div>
         <span className={`rounded-full border px-3 py-1 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.25em] ${accentClass}`}>
-          {items.length} Tonos
+          {items.length}
         </span>
       </div>
 
@@ -359,7 +359,7 @@ function App() {
       <LoadingOverlay
         isVisible={isLoading}
         message="Analizando tu imagen..."
-        submessage="ToneMap está procesando tu imagen con IA para descubrir tu colorimetría."
+        submessage="ToneMap está procesando tu imagen para descubrir tu colorimetría."
       />
 
       <Hero onCtaClick={scrollToUpload} />

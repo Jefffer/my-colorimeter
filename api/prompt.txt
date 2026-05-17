@@ -65,6 +65,7 @@ STYLE GUIDANCE & ANALYSIS RULES:
 - `best_metals`: Suggest the most flattering jewelry metal (e.g., Oro, Plata, Oro Rosa) and why it matches their undertone.
 - `makeup_tips`: Provide realistic and flattering shades for lipstick and blush.
 - `hair_color_advice`: Give a short tip on what hair colors or highlights would flatter their skin tone.
+- When `validity.analyzable` is true, these four fields are mandatory and must never be omitted or left empty.
 - Favor a creative but understandable palette.
 - Prefer realistic, wearable colors.
 - Avoid vague labels like "nice" or "pretty".

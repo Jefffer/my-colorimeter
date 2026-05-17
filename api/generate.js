@@ -79,6 +79,35 @@ function previewText(text, maxLength = 2000) {
 	return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}\n... [truncated]` : normalized
 }
 
+function hasText(value) {
+	return typeof value === 'string' && value.trim().length > 0
+}
+
+function getMissingSupplementalFields(report) {
+	const missing = []
+
+	if (!hasText(report?.contrast_level)) missing.push('contrast_level')
+	if (!report?.best_metals || !hasText(report.best_metals.primary) || !hasText(report.best_metals.reason)) missing.push('best_metals')
+	if (!report?.makeup_tips || !hasText(report.makeup_tips.lipstick) || !hasText(report.makeup_tips.blush)) missing.push('makeup_tips')
+	if (!hasText(report?.hair_color_advice)) missing.push('hair_color_advice')
+
+	return missing
+}
+
+function buildSupplementalCompletionPrompt(report, missingFields) {
+	return [
+		'You are completing a previously returned Spanish JSON report for the same image.',
+		`The report is missing these required fields: ${missingFields.join(', ')}.`,
+		'Return ONLY a valid JSON object with ONLY the missing fields.',
+		'Do not repeat the other fields.',
+		'Do not add markdown, code fences, or explanations.',
+		'Keep the values consistent with the rest of the report.',
+		'Use Spanish.',
+		'Current report:',
+		JSON.stringify(report, null, 2),
+	].join('\n')
+}
+
 function extractJson(text) {
 	const normalized = String(text || '').trim().replace(/^```json\s*/i, '').replace(/^```/i, '').replace(/```$/i, '')
 	const match = normalized.match(/\{[\s\S]*\}/)
@@ -94,16 +123,31 @@ function validateReport(report) {
 	const best = Array.isArray(report?.best_options) ? report.best_options : []
 	const neutral = Array.isArray(report?.neutral_options) ? report.neutral_options : []
 	const avoid = Array.isArray(report?.avoid_options) ? report.avoid_options : []
+	const missingSupplementalFields = getMissingSupplementalFields(report)
 
 	if (best.length !== 6 || neutral.length !== 4 || avoid.length !== 3) {
 		throw new Error('Gemini no devolvió exactamente 6 colores mejores, 4 neutrales y 3 a evitar')
 	}
 
+	if (missingSupplementalFields.length > 0) {
+		throw new Error(`Gemini no devolvió los campos requeridos: ${missingSupplementalFields.join(', ')}`)
+	}
+
 	return {
 		season: String(report?.season || '').trim(),
 		undertone: String(report?.undertone || '').trim(),
+		contrast_level: String(report?.contrast_level || '').trim(),
 		summary: String(report?.summary || '').trim(),
 		why_this_works: String(report?.why_this_works || '').trim(),
+		best_metals: report?.best_metals ? {
+			primary: String(report.best_metals.primary || '').trim(),
+			reason: String(report.best_metals.reason || '').trim(),
+		} : null,
+		makeup_tips: report?.makeup_tips ? {
+			lipstick: String(report.makeup_tips.lipstick || '').trim(),
+			blush: String(report.makeup_tips.blush || '').trim(),
+		} : null,
+		hair_color_advice: String(report?.hair_color_advice || '').trim(),
 		best_options: best.map((item) => ({
 			name: String(item?.name || '').trim(),
 			hex: String(item?.hex || '').trim(),
@@ -207,7 +251,7 @@ export default async function handler(req, res) {
 		let report
 
 		try {
-			const parsed = extractJson(response?.text || '')
+			let parsed = extractJson(response?.text || '')
 
 			// If model explicitly indicates the image is not analyzable, return early with empty fields
 			const validity = parsed?.validity || null
@@ -230,8 +274,39 @@ export default async function handler(req, res) {
 					avoid_options: [],
 				}
 			} else {
+				let validated
+
+				try {
+					validated = validateReport(parsed)
+				} catch (validationError) {
+					const missingSupplementalFields = getMissingSupplementalFields(parsed)
+
+					if (missingSupplementalFields.length > 0) {
+						writeDebugLog({
+							type: 'supplemental_retry',
+							model: usedModel,
+							missingSupplementalFields,
+						})
+
+						const supplementalResponse = await generateWithModel(
+							usedModel,
+							buildSupplementalCompletionPrompt(parsed, missingSupplementalFields),
+							base64Image,
+							mimeType,
+						)
+
+						const supplementalParsed = extractJson(supplementalResponse?.text || '')
+						parsed = {
+							...parsed,
+							...supplementalParsed,
+						}
+						validated = validateReport(parsed)
+					} else {
+						throw validationError
+					}
+				}
+
 				// Normal path: validate the full report and attach validity/photo_type if provided
-				const validated = validateReport(parsed)
 				report = {
 					photo_type: photoType || 'portrait',
 					validity: {
