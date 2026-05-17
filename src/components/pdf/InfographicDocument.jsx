@@ -391,8 +391,9 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
                 <View style={styles.styleCard}>
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Maquillaje ideal</Text>
-                  <Text style={styles.styleCardValue}>Labios: {report.makeup_tips.lipstick}</Text>
-                  <Text style={styles.styleCardText}>Rubor: {report.makeup_tips.blush}</Text>
+                  <Text style={styles.styleCardValue}>Lo que funciona para ti</Text>
+                  <Text style={styles.styleCardText}><Text style={styles.footerBrand}>Labios: </Text> {report.makeup_tips.lipstick}</Text>
+                  <Text style={styles.styleCardText}><Text style={styles.footerBrand}>Rubor: </Text> {report.makeup_tips.blush}</Text>
                   {/* <View style={styles.makeupList}>
                     <Text style={styles.makeupLine}>Piensa en acabados suaves y colores que mantengan la naturalidad del rostro.</Text>
                   </View> */}
