@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Alineación central para equilibrar la foto grande
     marginBottom: 20,
     borderBottom: `1px solid ${THEME.surfaceBorder}`,
-    paddingBottom: 25,
+    paddingBottom: 20,
   },
   titleWrapper: {
     flex: 1,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   analysisBox: {
     backgroundColor: THEME.surface,
     borderRadius: 8,
-    padding: 16,
+    padding: 14,
     marginBottom: 28,
     borderLeft: `3px solid ${THEME.accent}`,
   },
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
 
 // Componente para la Tarjeta de Color con Razón
 const SwatchCard = ({ color, isFourCol = false }) => (
-  <View style={[styles.card, isFourCol ? styles.card4Col : styles.card3Col]}>
+  <View style={[styles.card, isFourCol ? styles.card4Col : styles.card3Col]} wrap={false}>
     <View style={[styles.colorBlock, { backgroundColor: color.hex }]} />
     <View style={[styles.cardContent, isFourCol ? styles.cardContent4Col : styles.cardContent3Col]}>
       <View style={styles.colorHeader}>
@@ -413,7 +413,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
 
         {/* SECCIÓN: ESTRELLAS (3 Columnas) */}
         {best_options.length > 0 && (
-          <View style={styles.section} wrap={false}>
+          <View style={styles.section} wrap={true}>
             <View style={styles.sectionHeader}>
               <Icons.Star />
               <Text style={styles.sectionTitle}>Tus Colores Estrella</Text>
