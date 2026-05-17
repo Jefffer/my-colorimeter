@@ -415,14 +415,14 @@ function App() {
                   {!isLoading ? <><FiLoader size={18} className="hidden" /> Analizar colorimetría <FiArrowRight size={18} /></> : <><FiLoader size={18} className="animate-spin" /> Analizando...</>}
                 </button>
 
-                <button
+                {/* <button
                   type="button"
                   onClick={loadMockData}
                   disabled={!previewUrl || isLoading}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-accent/30 bg-accent/5 px-5 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Probar con datos Demo
-                </button>
+                </button> */}
 
                 <div className="mt-3">
                   <label htmlFor="show-makeup" className="flex items-center gap-3 cursor-pointer select-none">
@@ -552,7 +552,7 @@ function App() {
                   <article className="rounded-[28px] border border-white/5 bg-surface/60 p-5 md:p-8 shadow-elevated backdrop-blur-2xl">
                     <div className="mb-6 md:mb-8">
                       <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-accent/80">Paso 3</span>
-                      <h2 className="mt-1 md:mt-2 text-xl md:text-[22px] font-light tracking-wide text-white/90">Tu Paleta de Colores</h2>
+                      {/* <h2 className="mt-1 md:mt-2 text-xl md:text-[22px] font-light tracking-wide text-white/90">Tu Paleta de Colores</h2> */}
                     </div>
 
                     <div className="pb-2">
@@ -589,7 +589,7 @@ function App() {
                       </p>
                     </div>
                     <div className="w-full sm:w-auto shrink-0">
-                      <DownloadPdfButton report={analysis} previewUrl={previewUrl} />
+                      <DownloadPdfButton report={analysis} previewUrl={previewUrl} showMakeup={showMakeup} />
                     </div>
                   </article>
                 </>

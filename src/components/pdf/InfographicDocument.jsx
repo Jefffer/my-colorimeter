@@ -173,6 +173,9 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
   },
+  styleCardFullWidth: {
+    width: '100%',
+  },
   styleCardAccent: {
     height: 2,
     width: '100%',
@@ -325,8 +328,9 @@ const SwatchCard = ({ color, isFourCol = false }) => (
   </View>
 );
 
-export default function InfographicDocument({ report = {}, previewUrl = null }) {
+export default function InfographicDocument({ report = {}, previewUrl = null, showMakeup = false }) {
   const { best_options = [], neutral_options = [], avoid_options = [] } = report;
+  const hairCardStyle = [styles.styleCard, !showMakeup && styles.styleCardFullWidth]
 
   return (
     <Document>
@@ -387,7 +391,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
                 </View>
               )}
 
-              {report.makeup_tips && (
+              {showMakeup && report.makeup_tips && (
                 <View style={styles.styleCard}>
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Maquillaje ideal</Text>
@@ -401,7 +405,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null }) 
               )}
 
               {report.hair_color_advice && (
-                <View style={styles.styleCard}>
+                <View style={hairCardStyle}>
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Cabello</Text>
                   <Text style={styles.styleCardValue}>Sugerencia de color</Text>
