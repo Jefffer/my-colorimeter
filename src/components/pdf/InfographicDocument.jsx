@@ -202,6 +202,15 @@ const styles = StyleSheet.create({
     color: THEME.muted,
     lineHeight: 1.45,
   },
+  styleList: {
+    marginTop: 4,
+  },
+  styleListItem: {
+    fontSize: 8,
+    color: THEME.muted,
+    lineHeight: 1.45,
+    marginTop: 2,
+  },
   makeupList: {
     marginTop: 4,
   },
@@ -329,7 +338,7 @@ const SwatchCard = ({ color, isFourCol = false }) => (
 
 export default function InfographicDocument({ report = {}, previewUrl = null, showMakeup = false }) {
   const { best_options = [], neutral_options = [], avoid_options = [] } = report;
-  const hairCardStyle = [styles.styleCard, !showMakeup && styles.styleCardFullWidth]
+  const hairCardStyle = [styles.styleCard, styles.styleCardFullWidth]
 
   return (
     <Document>
@@ -364,7 +373,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
         )}
 
         {/* SECCIÓN: DETALLES DE ESTILO */}
-        {(report.contrast_level || report.best_metals || report.makeup_tips || report.hair_color_advice) && (
+        {(report.contrast_level || report.best_metals || report.makeup_tips || report.hair_color_advice || report.face_shape || (Array.isArray(report.hair_styles) && report.hair_styles.length > 0) || report.glasses_analysis?.frame_shape) && (
           <View style={styles.styleSection} wrap={false}>
             <View style={styles.sectionHeader}>
               <Icons.Sparkle />
@@ -390,6 +399,24 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                 </View>
               )}
 
+              {report.face_shape && (
+                <View style={styles.styleCard}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Rostro</Text>
+                  <Text style={styles.styleCardValue}>{report.face_shape}</Text>
+                  <Text style={styles.styleCardText}>Guía rápida para cortes y accesorios.</Text>
+                </View>
+              )}
+
+              {report.glasses_analysis?.frame_shape && (
+                <View style={styles.styleCard}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Gafas</Text>
+                  <Text style={styles.styleCardValue}>{report.glasses_analysis.frame_shape}</Text>
+                  <Text style={styles.styleCardText}>{report.glasses_analysis.frame_color}. {report.glasses_analysis.tip}</Text>
+                </View>
+              )}
+
               {showMakeup && report.makeup_tips && (
                 <View style={styles.styleCard}>
                   <View style={styles.styleCardAccent} />
@@ -403,12 +430,24 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                 </View>
               )}
 
-              {report.hair_color_advice && (
+              {(report.hair_color_advice || (Array.isArray(report.hair_styles) && report.hair_styles.length > 0)) && (
                 <View style={hairCardStyle}>
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Cabello</Text>
-                  <Text style={styles.styleCardValue}>Sugerencia de color</Text>
-                  <Text style={styles.styleCardText}>{report.hair_color_advice}</Text>
+                  {report.hair_color_advice && (
+                    <>
+                      <Text style={styles.styleCardValue}>Sugerencia de color</Text>
+                      <Text style={styles.styleCardText}>{report.hair_color_advice}</Text>
+                    </>
+                  )}
+                  {Array.isArray(report.hair_styles) && report.hair_styles.length > 0 && (
+                    <View style={styles.styleList}>
+                      <Text style={styles.styleCardValue}>Cortes recomendados</Text>
+                      {report.hair_styles.map((item, index) => (
+                        <Text key={`${item.style}-${index}`} style={styles.styleListItem}>• {item.style}: {item.reason}</Text>
+                      ))}
+                    </View>
+                  )}
                 </View>
               )}
             </View>

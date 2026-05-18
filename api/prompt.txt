@@ -17,6 +17,13 @@ REQUIRED OUTPUT FORMAT:
 	"contrast_level": "string",
 	"summary": "string",
 	"why_this_works": "string",
+	"face_shape": "string",
+	"hair_styles": [
+		{ "style": "string", "reason": "string" },
+		{ "style": "string", "reason": "string" },
+		{ "style": "string", "reason": "string" }
+	],
+	"glasses_analysis": { "frame_shape": "string", "frame_color": "string", "tip": "string" },
 	"best_metals": { "primary": "string", "reason": "string" },
 	"makeup_tips": { "lipstick": "string", "blush": "string" },
 	"hair_color_advice": "string",
@@ -65,7 +72,11 @@ STYLE GUIDANCE & ANALYSIS RULES:
 - `best_metals`: Suggest the most flattering jewelry metal (e.g., Oro, Plata, Oro Rosa) and why it matches their undertone.
 - `makeup_tips`: Provide realistic and flattering shades for lipstick and blush.
 - `hair_color_advice`: Give a short tip on what hair colors or highlights would flatter their skin tone.
-- When `validity.analyzable` is true, these four fields are mandatory and must never be omitted or left empty.
+- `face_shape`: Identify the closest face shape (e.g., Ovalado, Cuadrado, Redondo, Rectangular, Diamante, Corazón, Triangular). Use one word.
+- `hair_styles`: Provide exactly 3 flattering hair styles or cuts that suit the face shape and contrast.
+- Each hair style must include a short description explaining why it is a good recommendation.
+- `glasses_analysis`: Recommend ideal glasses frame shape and frame color that harmonize with undertone and contrast, plus one short practical tip.
+- When `validity.analyzable` is true, these seven fields are mandatory and must never be omitted or left empty.
 - Favor a creative but understandable palette.
 - Prefer realistic, wearable colors.
 - Avoid vague labels like "nice" or "pretty".

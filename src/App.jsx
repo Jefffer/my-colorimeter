@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 // import { Analytics } from "@vercel/analytics/next"
-import { FiUploadCloud, FiInfo, FiAlertTriangle, FiArrowRight, FiLoader, FiRefreshCcw, FiCamera } from 'react-icons/fi'
+import { FiUploadCloud, FiInfo, FiAlertTriangle, FiArrowRight, FiLoader, FiRefreshCcw, FiCamera, FiUser, FiEye } from 'react-icons/fi'
 import { RiContrastDrop2Line, RiVipCrown2Line, RiScissors2Line } from 'react-icons/ri'
 import { HiOutlineSparkles } from 'react-icons/hi2'
 
@@ -18,6 +18,17 @@ const fallbackReport = {
   summary: 'ToneMap devuelve una guía limpia y accionable para tu colorimetría. Descubre qué tonos iluminan tu rostro y cuáles debes evitar.',
   why_this_works:
     'La lectura se centra en equilibrar contraste, calidez y presencia visual para que tus colores funcionen en conjunto. Resalta tus facciones de forma natural.',
+  face_shape: 'Ovalado',
+  hair_styles: [
+    { style: 'Capas largas suaves', reason: 'Aportan movimiento y estilizan la silueta del rostro.' },
+    { style: 'Bob texturizado a la clavícula', reason: 'Equilibra proporciones y mantiene ligereza visual.' },
+    { style: 'Flequillo cortina con ondas', reason: 'Suaviza facciones y enmarca los ojos con naturalidad.' },
+  ],
+  glasses_analysis: {
+    frame_shape: 'Rectangulares suaves',
+    frame_color: 'Caramelo o dorado claro',
+    tip: 'Evita monturas muy pesadas para mantener ligereza visual.'
+  },
   best_metals: {
     primary: 'Oro Rosa o Dorado',
     reason: 'Armoniza con la calidez de tu piel sin saturarla.'
@@ -207,6 +218,9 @@ function App() {
   const isProcessing = useRef(false)
 
   const report = getReportData(analysis)
+  const glassesDescription = report?.glasses_analysis
+    ? [report.glasses_analysis.frame_color, report.glasses_analysis.tip].filter(Boolean).join('. ')
+    : ''
   const [, setFooterVisible] = useState(false)
   const [stickyTopOffset, setStickyTopOffset] = useState(24)
 
@@ -598,12 +612,51 @@ function App() {
                       {report.best_metals && (
                         <InsightCard icon={RiVipCrown2Line} title="Metales" value={report.best_metals.primary} description={report.best_metals.reason} />
                       )}
+                      {report.face_shape && (
+                        <InsightCard icon={FiUser} title="Forma de rostro" value={report.face_shape} />
+                      )}
+                      {report.glasses_analysis?.frame_shape && (
+                        <InsightCard
+                          icon={FiEye}
+                          title="Gafas ideales"
+                          value={report.glasses_analysis.frame_shape}
+                          description={glassesDescription}
+                        />
+                      )}
 
 
+                      {(report.hair_color_advice || (Array.isArray(report.hair_styles) && report.hair_styles.length > 0)) && (
+                        <div className="col-span-1 md:col-span-2 rounded-[20px] border border-white/5 bg-white/[0.02] p-5">
+                          <div className="flex items-center gap-3">
+                            <div className="rounded-full border border-white/10 bg-white/5 p-2 text-white/70">
+                              <RiScissors2Line size={16} />
+                            </div>
+                            <span className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-white/50">Cabello</span>
+                          </div>
 
-                      {report.hair_color_advice && (
-                        <div className="col-span-1 md:col-span-2">
-                          <InsightCard icon={RiScissors2Line} title="Estilismo de Cabello" value="Sugerencia de Color" description={report.hair_color_advice} />
+                          {report.hair_color_advice && (
+                            <div className="mt-4">
+                              <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Sugerencia de color</span>
+                              <p className="mt-2 text-sm leading-relaxed text-white/80 font-light">{report.hair_color_advice}</p>
+                            </div>
+                          )}
+
+                          {Array.isArray(report.hair_styles) && report.hair_styles.length > 0 && (
+                            <div className="mt-4">
+                              <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Cortes recomendados</span>
+                              <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                {report.hair_styles.map((item) => (
+                                  <div
+                                    key={item.style}
+                                    className="rounded-[16px] border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/80"
+                                  >
+                                    <p className="font-semibold text-white/90">{item.style}</p>
+                                    <p className="mt-1 text-[10px] text-white/50 leading-relaxed">{item.reason}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
 

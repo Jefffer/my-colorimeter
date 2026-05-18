@@ -1,5 +1,6 @@
 /* global process */
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { GoogleGenAI } from '@google/genai'
 
@@ -79,6 +80,10 @@ function previewText(text, maxLength = 2000) {
 	return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}\n... [truncated]` : normalized
 }
 
+function hashPrompt(promptText) {
+	return createHash('sha256').update(String(promptText || '')).digest('hex').slice(0, 12)
+}
+
 function hasText(value) {
 	return typeof value === 'string' && value.trim().length > 0
 }
@@ -90,6 +95,17 @@ function getMissingSupplementalFields(report) {
 	if (!report?.best_metals || !hasText(report.best_metals.primary) || !hasText(report.best_metals.reason)) missing.push('best_metals')
 	if (!report?.makeup_tips || !hasText(report.makeup_tips.lipstick) || !hasText(report.makeup_tips.blush)) missing.push('makeup_tips')
 	if (!hasText(report?.hair_color_advice)) missing.push('hair_color_advice')
+	if (!hasText(report?.face_shape)) missing.push('face_shape')
+	if (
+		!Array.isArray(report?.hair_styles) ||
+		report.hair_styles.length !== 3 ||
+		report.hair_styles.some((item) => !hasText(item?.style) || !hasText(item?.reason))
+	) {
+		missing.push('hair_styles')
+	}
+	if (!report?.glasses_analysis || !hasText(report.glasses_analysis.frame_shape) || !hasText(report.glasses_analysis.frame_color) || !hasText(report.glasses_analysis.tip)) {
+		missing.push('glasses_analysis')
+	}
 
 	return missing
 }
@@ -139,6 +155,18 @@ function validateReport(report) {
 		contrast_level: String(report?.contrast_level || '').trim(),
 		summary: String(report?.summary || '').trim(),
 		why_this_works: String(report?.why_this_works || '').trim(),
+		face_shape: String(report?.face_shape || '').trim(),
+		hair_styles: Array.isArray(report?.hair_styles)
+			? report.hair_styles.map((item) => ({
+				style: String(item?.style || '').trim(),
+				reason: String(item?.reason || '').trim(),
+			}))
+			: [],
+		glasses_analysis: report?.glasses_analysis ? {
+			frame_shape: String(report.glasses_analysis.frame_shape || '').trim(),
+			frame_color: String(report.glasses_analysis.frame_color || '').trim(),
+			tip: String(report.glasses_analysis.tip || '').trim(),
+		} : null,
 		best_metals: report?.best_metals ? {
 			primary: String(report.best_metals.primary || '').trim(),
 			reason: String(report.best_metals.reason || '').trim(),
@@ -226,6 +254,14 @@ export default async function handler(req, res) {
 
 		const base64Image = image.includes(',') ? image.split(',')[1] : image
 		const prompt = readFileSync(new URL('./prompt.txt', import.meta.url), 'utf8')
+		const promptHash = hashPrompt(prompt)
+		writeDebugLog({
+			type: 'prompt_loaded',
+			promptHash,
+			promptHasHairStyles: prompt.includes('"hair_styles"'),
+			promptHasGlasses: prompt.includes('"glasses_analysis"'),
+			promptHasFaceShape: prompt.includes('"face_shape"'),
+		})
 
 		let response
 		let usedModel = primaryModel
@@ -269,6 +305,9 @@ export default async function handler(req, res) {
 					undertone: '',
 					summary: '',
 					why_this_works: '',
+					face_shape: '',
+					hair_styles: [],
+					glasses_analysis: {},
 					best_options: [],
 					neutral_options: [],
 					avoid_options: [],
