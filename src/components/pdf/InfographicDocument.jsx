@@ -205,6 +205,47 @@ const styles = StyleSheet.create({
   styleList: {
     marginTop: 4,
   },
+  // --- CABELLO (PDF) ---
+  hairColorRow: {
+    marginTop: 8,
+    borderBottom: `1px solid ${THEME.surfaceBorder}`,
+    paddingBottom: 5,
+  },
+  hairCutsRow: {
+    marginTop: 5,
+  },
+  hairCutsColumns: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  hairCutColumn: {
+    width: '33.33%',
+    paddingHorizontal: 8,
+  },
+  hairCutColumnWithDivider: {
+    borderRight: `1px solid ${THEME.surfaceBorder}`,
+  },
+  hairStyleNumber: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: THEME.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  hairStyleTitle: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: THEME.text,
+    marginLeft: 8,
+  },
+  hairStyleDesc: {
+    fontSize: 8,
+    color: THEME.muted,
+    marginTop: 5,
+    lineHeight: 1.4,
+  },
   styleListItem: {
     fontSize: 8,
     color: THEME.muted,
@@ -386,7 +427,6 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Contraste</Text>
                   <Text style={styles.styleCardValue}>{report.contrast_level}</Text>
-                  <Text style={styles.styleCardText}>Usa este nivel como referencia para construir looks más armónicos.</Text>
                 </View>
               )}
 
@@ -395,7 +435,6 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Rostro</Text>
                   <Text style={styles.styleCardValue}>{report.face_shape}</Text>
-                  <Text style={styles.styleCardText}>Guía rápida para cortes y accesorios.</Text>
                 </View>
               )}
 
@@ -421,19 +460,30 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                 <View style={hairCardStyle} wrap={false}>
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Cabello</Text>
+
                   {report.hair_color_advice && (
-                    <>
+                    <View style={styles.hairColorRow}>
                       <Text style={styles.styleCardValue}>Sugerencia de color</Text>
                       <Text style={styles.styleCardText}>{report.hair_color_advice}</Text>
-                    </>
+                    </View>
                   )}
+
                   {Array.isArray(report.hair_styles) && report.hair_styles.length > 0 && (
-                    <>
+                    <View style={styles.hairCutsRow}>
                       <Text style={styles.styleCardValue}>Cortes recomendados</Text>
-                      {report.hair_styles.map((item, index) => (
-                        <Text key={`${item.style}-${index}`} style={styles.styleListItem}>• {item.style}: {item.reason}</Text>
-                      ))}
-                    </>
+
+                      <View style={styles.hairCutsColumns}>
+                        {(Array.isArray(report.hair_styles) ? report.hair_styles : []).slice(0, 3).map((item, idx) => (
+                          <View key={`${item.style || idx}`} style={[styles.hairCutColumn, idx < 2 && styles.hairCutColumnWithDivider]}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                              <View style={styles.hairStyleNumber}><Text style={{ fontSize: 8, color: THEME.text, fontWeight: 'bold' }}>{idx + 1}</Text></View>
+                              <Text style={styles.hairStyleTitle}>{item.style}</Text>
+                            </View>
+                            <Text style={styles.hairStyleDesc}>{item.reason}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
                   )}
                 </View>
               )}

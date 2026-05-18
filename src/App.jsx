@@ -515,7 +515,7 @@ function App() {
                 >
                   {!isLoading ? <><FiLoader size={18} className="hidden" /> Analizar colorimetría <FiArrowRight size={18} /></> : <><FiLoader size={18} className="animate-spin" /> Analizando...</>}
                 </button>
-
+{/* 
                 <button
                   type="button"
                   onClick={loadMockData}
@@ -523,7 +523,7 @@ function App() {
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-accent/30 bg-accent/5 px-5 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Probar con datos Demo
-                </button>
+                </button> */}
 
                 <div className="mt-3">
                   <label htmlFor="show-makeup" className="flex items-center gap-3 cursor-pointer select-none">
@@ -626,7 +626,7 @@ function App() {
 
 
                       {(report.hair_color_advice || (Array.isArray(report.hair_styles) && report.hair_styles.length > 0)) && (
-                        <div className="col-span-1 md:col-span-2 rounded-[20px] border border-white/5 bg-white/[0.02] p-5">
+                        <div className="col-span-1 md:col-span-2 rounded-[20px] border border-white/5 bg-white/[0.02] p-5 md:p-6">
                           <div className="flex items-center gap-3">
                             <div className="rounded-full border border-white/10 bg-white/5 p-2 text-white/70">
                               <RiScissors2Line size={16} />
@@ -634,25 +634,33 @@ function App() {
                             <span className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-white/50">Cabello</span>
                           </div>
 
-                          {report.hair_color_advice && (
-                            <div className="mt-4">
-                              <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Sugerencia de color</span>
-                              <p className="mt-2 text-sm leading-relaxed text-white/80 font-light">{report.hair_color_advice}</p>
-                            </div>
-                          )}
+                          <div className="mt-5 border-b border-white/10 pb-5">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Sugerencia de color</span>
+                            <p className="mt-2 text-sm md:text-[15px] leading-relaxed text-white/85 font-light">{report.hair_color_advice}</p>
+                          </div>
 
                           {Array.isArray(report.hair_styles) && report.hair_styles.length > 0 && (
-                            <div className="mt-4">
+                            <div className="mt-5">
                               <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Cortes recomendados</span>
-                              <div className="mt-3 space-y-2">
-                                {report.hair_styles.map((item) => (
-                                  <p
-                                    key={item.style}
-                                    className="text-[12px] text-white/80 leading-relaxed"
+                              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 sm:gap-x-5">
+                                {(Array.isArray(report.hair_styles) ? report.hair_styles : []).slice(0, 3).map((item, idx) => (
+                                  <div
+                                    key={item.style || idx}
+                                    className="relative px-0 sm:px-0 lg:px-1"
                                   >
-                                    <span className="font-semibold text-white/90">{item.style}:</span>{' '}<br></br>
-                                    <span className="text-[11px] md:text-xs text-white/50 font-light">{item.reason}</span>
-                                  </p>
+                                    {idx > 0 && (
+                                      <span className="hidden lg:block absolute -left-2 top-1 h-[78%] w-px bg-linear-to-b from-transparent via-white/20 to-transparent" aria-hidden="true" />
+                                    )}
+                                    {idx > 0 && (
+                                      <span className="block lg:hidden absolute left-0 -top-2 h-px w-full bg-linear-to-r from-transparent via-white/15 to-transparent" aria-hidden="true" />
+                                    )}
+
+                                    <div className="mb-2 inline-flex items-center gap-2">
+                                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-[11px] font-bold text-accent">{idx + 1}</span>
+                                      <strong className="text-sm md:text-[15px] font-medium tracking-wide text-white/90">{item.style}</strong>
+                                    </div>
+                                    <p className="text-[12px] md:text-[13px] leading-relaxed text-white/60 font-light">{item.reason}</p>
+                                  </div>
                                 ))}
                               </div>
                             </div>
