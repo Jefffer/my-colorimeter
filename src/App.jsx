@@ -10,7 +10,6 @@ import Footer from './components/Footer'
 import Tippy from '@tippyjs/react'
 import 'tippy.js/dist/tippy.css'
 import DownloadPdfButton from './components/pdf/DownloadPdfButton'
-import { mockGeminiResponse } from './mockGeminiResponse'
 
 const fallbackReport = {
   season: 'Tu lectura ToneMap',
@@ -198,6 +197,7 @@ function App() {
   const [previewUrl, setPreviewUrl] = useState('')
   const [analysis, setAnalysis] = useState(null)
   const [showMakeup, setShowMakeup] = useState(false)
+  const [isMobileDevice, setIsMobileDevice] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [fileAlert, setFileAlert] = useState(null)
@@ -209,6 +209,25 @@ function App() {
   const report = getReportData(analysis)
   const [, setFooterVisible] = useState(false)
   const [stickyTopOffset, setStickyTopOffset] = useState(24)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const detectMobile = () => {
+      const userAgent = navigator.userAgent || ''
+      const isTouchDevice = window.matchMedia('(pointer: coarse)').matches
+      const isMobileUa = /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent)
+      setIsMobileDevice(isTouchDevice || isMobileUa)
+    }
+
+    detectMobile()
+
+    const mediaQuery = window.matchMedia('(pointer: coarse)')
+    const onChange = () => detectMobile()
+    mediaQuery.addEventListener('change', onChange)
+
+    return () => mediaQuery.removeEventListener('change', onChange)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -279,19 +298,6 @@ function App() {
     isProcessing.current = false
     setIsLoading(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
-  const loadMockData = () => {
-    if (!previewUrl) {
-      setError('Sube una imagen primero para cargar los datos de prueba')
-      return
-    }
-    setIsLoading(true)
-    setError('')
-    setTimeout(() => {
-      setAnalysis(fallbackReport)
-      setIsLoading(false)
-    }, 1200)
   }
 
   const handleGenerate = async (event) => {
@@ -389,46 +395,67 @@ function App() {
                 </Tippy>
               </div>
 
-              <input ref={fileInputRef} className="sr-only" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleFileSelect} />
+              <input ref={fileInputRef} className="sr-only" type="file" accept={isMobileDevice ? 'image/*' : '.jpg,.jpeg,.png,.webp'} onChange={handleFileSelect} />
 
+              {isMobileDevice && (
+                <input ref={cameraInputRef} className="sr-only" type="file" accept="image/*" capture="user" onChange={handleFileSelect} />
+              )}
 
-              <input ref={cameraInputRef} className="sr-only" type="file" accept="image/*" capture="user" onChange={handleFileSelect} />
-
-              <div className="group aspect-[3/4] md:aspect-[4/5] w-full overflow-hidden rounded-[20px] md:rounded-[24px] border border-dashed border-white/10 bg-white/[0.02] p-0 text-left transition-colors hover:border-accent/40 hover:bg-white/[0.04] relative">
+              <div
+                className="group aspect-[3/4] md:aspect-[4/5] w-full overflow-hidden rounded-[20px] md:rounded-[24px] border border-dashed border-white/10 bg-white/[0.02] p-0 text-left transition-colors hover:border-accent/40 hover:bg-white/[0.04] relative"
+                role="button"
+                tabIndex={0}
+                onClick={!isMobileDevice ? openFilePicker : undefined}
+                onKeyDown={(event) => {
+                  if (isMobileDevice) return
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    openFilePicker()
+                  }
+                }}
+              >
                 {previewUrl ? (
                   <>
                     <img src={previewUrl} alt="Vista previa" className="h-full w-full object-cover" />
                     {/* Botón flotante para cambiar foto cuando ya hay una */}
-                    <div className="absolute bottom-4 inset-x-0 flex justify-center gap-2">
-                       <button onClick={openFilePicker} className="bg-black/60 backdrop-blur-md text-white/90 text-xs px-4 py-2 rounded-full border border-white/20 hover:bg-black/80 transition">
+                    {isMobileDevice && (
+                      <div className="absolute bottom-4 inset-x-0 flex justify-center gap-2">
+                       <button onClick={(event) => { event.stopPropagation(); openFilePicker() }} className="bg-black/60 backdrop-blur-md text-white/90 text-xs px-4 py-2 rounded-full border border-white/20 hover:bg-black/80 transition">
                          Cambiar
                        </button>
-                    </div>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-6 text-center">
-                    
-                    <div className="grid grid-cols-2 gap-3 w-full max-w-[240px]">
-                      {/* Botón explícito para Cámara */}
-                      <button 
-                        type="button" 
-                        onClick={openCameraPicker} 
-                        className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-6 transition-colors hover:bg-white/10 hover:border-accent/30"
-                      >
-                        <FiCamera size={28} className="text-white/50" />
-                        <span className="text-[11px] font-medium text-white/70">Tomar Foto</span>
-                      </button>
+                    {isMobileDevice ? (
+                      <div className="grid grid-cols-2 gap-3 w-full max-w-[240px]">
+                        {/* Botón explícito para Cámara */}
+                        <button
+                          type="button"
+                          onClick={(event) => { event.stopPropagation(); openCameraPicker() }}
+                          className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-6 transition-colors hover:bg-white/10 hover:border-accent/30"
+                        >
+                          <FiCamera size={28} className="text-white/50" />
+                          <span className="text-[11px] font-medium text-white/70">Tomar Foto</span>
+                        </button>
 
-                      {/* Botón explícito para Galería */}
-                      <button 
-                        type="button" 
-                        onClick={openFilePicker} 
-                        className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-6 transition-colors hover:bg-white/10 hover:border-accent/30"
-                      >
-                        <FiUploadCloud size={28} className="text-white/50" />
-                        <span className="text-[11px] font-medium text-white/70">Subir Foto</span>
-                      </button>
-                    </div>
+                        {/* Botón explícito para Galería */}
+                        <button
+                          type="button"
+                          onClick={(event) => { event.stopPropagation(); openFilePicker() }}
+                          className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-6 transition-colors hover:bg-white/10 hover:border-accent/30"
+                        >
+                          <FiUploadCloud size={28} className="text-white/50" />
+                          <span className="text-[11px] font-medium text-white/70">Subir Foto</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <FiUploadCloud size={32} className="text-white/30" />
+                        <strong className="text-lg font-medium text-white/70">Selecciona una imagen</strong>
+                      </>
+                    )}
 
                     <span className="max-w-[200px] text-[10px] leading-5 text-white/40 font-light">
                       Formatos JPG, PNG o WebP. Máximo 5MB.

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Document, Page, View, Text, StyleSheet, Svg, Path, Link, Image, Font } from '@react-pdf/renderer';
 import sora400 from '@fontsource/sora/files/sora-latin-400-normal.woff';
 import sora600 from '@fontsource/sora/files/sora-latin-600-normal.woff';
