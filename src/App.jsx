@@ -387,7 +387,7 @@ function App() {
                 </Tippy>
               </div>
 
-              <input ref={fileInputRef} className="sr-only" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleFileSelect} />
+              <input ref={fileInputRef} className="sr-only" type="file" accept=".jpg,.jpeg,.png,.webp" capture="user" onChange={handleFileSelect} />
 
               <button
                 type="button"
