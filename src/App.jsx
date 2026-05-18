@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 // import { Analytics } from "@vercel/analytics/next"
-import { FiUploadCloud, FiInfo, FiAlertTriangle, FiArrowRight, FiLoader, FiRefreshCcw } from 'react-icons/fi'
+import { FiUploadCloud, FiInfo, FiAlertTriangle, FiArrowRight, FiLoader, FiRefreshCcw, FiCamera } from 'react-icons/fi'
 import { RiContrastDrop2Line, RiVipCrown2Line, RiScissors2Line } from 'react-icons/ri'
 import { HiOutlineSparkles } from 'react-icons/hi2'
 
@@ -202,6 +202,7 @@ function App() {
   const [error, setError] = useState('')
   const [fileAlert, setFileAlert] = useState(null)
   const fileInputRef = useRef(null)
+  const cameraInputRef = useRef(null)
   const uploadSectionRef = useRef(null)
   const isProcessing = useRef(false)
 
@@ -238,6 +239,7 @@ function App() {
   }, [])
 
   const openFilePicker = () => fileInputRef.current?.click()
+  const openCameraPicker = () => cameraInputRef.current?.click()
   const scrollToUpload = () => uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   const handleFileSelect = async (event) => {
@@ -387,9 +389,54 @@ function App() {
                 </Tippy>
               </div>
 
-              <input ref={fileInputRef} className="sr-only" type="file" accept=".jpg,.jpeg,.png,.webp" capture="user" onChange={handleFileSelect} />
+              <input ref={fileInputRef} className="sr-only" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleFileSelect} />
 
-              <button
+
+              <input ref={cameraInputRef} className="sr-only" type="file" accept="image/*" capture="user" onChange={handleFileSelect} />
+
+              <div className="group aspect-[3/4] md:aspect-[4/5] w-full overflow-hidden rounded-[20px] md:rounded-[24px] border border-dashed border-white/10 bg-white/[0.02] p-0 text-left transition-colors hover:border-accent/40 hover:bg-white/[0.04] relative">
+                {previewUrl ? (
+                  <>
+                    <img src={previewUrl} alt="Vista previa" className="h-full w-full object-cover" />
+                    {/* Botón flotante para cambiar foto cuando ya hay una */}
+                    <div className="absolute bottom-4 inset-x-0 flex justify-center gap-2">
+                       <button onClick={openFilePicker} className="bg-black/60 backdrop-blur-md text-white/90 text-xs px-4 py-2 rounded-full border border-white/20 hover:bg-black/80 transition">
+                         Cambiar
+                       </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-6 text-center">
+                    
+                    <div className="grid grid-cols-2 gap-3 w-full max-w-[240px]">
+                      {/* Botón explícito para Cámara */}
+                      <button 
+                        type="button" 
+                        onClick={openCameraPicker} 
+                        className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-6 transition-colors hover:bg-white/10 hover:border-accent/30"
+                      >
+                        <FiCamera size={28} className="text-white/50" />
+                        <span className="text-[11px] font-medium text-white/70">Tomar Foto</span>
+                      </button>
+
+                      {/* Botón explícito para Galería */}
+                      <button 
+                        type="button" 
+                        onClick={openFilePicker} 
+                        className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-6 transition-colors hover:bg-white/10 hover:border-accent/30"
+                      >
+                        <FiUploadCloud size={28} className="text-white/50" />
+                        <span className="text-[11px] font-medium text-white/70">Subir Foto</span>
+                      </button>
+                    </div>
+
+                    <span className="max-w-[200px] text-[10px] leading-5 text-white/40 font-light">
+                      Formatos JPG, PNG o WebP. Máximo 5MB.
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* <button
                 type="button"
                 onClick={openFilePicker}
                 className="group aspect-[3/4] md:aspect-[4/5] w-full overflow-hidden rounded-[20px] md:rounded-[24px] border border-dashed border-white/10 bg-white/[0.02] p-0 text-left transition-colors hover:border-accent/40 hover:bg-white/[0.04]"
@@ -403,7 +450,7 @@ function App() {
                     <span className="max-w-[200px] text-xs leading-5 text-white/40 font-light">Formatos JPG, PNG o WebP. Máximo 5MB.</span>
                   </div>
                 )}
-              </button>
+              </button> */}
 
               <div className="mt-5 grid gap-3">
                 <button
