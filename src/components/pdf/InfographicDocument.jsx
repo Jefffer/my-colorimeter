@@ -374,7 +374,7 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
 
         {/* SECCIÓN: DETALLES DE ESTILO */}
         {(report.contrast_level || report.best_metals || report.makeup_tips || report.hair_color_advice || report.face_shape || (Array.isArray(report.hair_styles) && report.hair_styles.length > 0) || report.glasses_analysis?.frame_shape) && (
-          <View style={styles.styleSection} wrap={false}>
+          <View style={styles.styleSection} wrap={true}>
             <View style={styles.sectionHeader}>
               <Icons.Sparkle />
               <Text style={styles.sectionTitle}>Detalles de estilo</Text>
@@ -390,21 +390,21 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                 </View>
               )}
 
-              {report.best_metals && (
-                <View style={styles.styleCard}>
-                  <View style={styles.styleCardAccent} />
-                  <Text style={styles.styleCardLabel}>Metales</Text>
-                  <Text style={styles.styleCardValue}>{report.best_metals.primary}</Text>
-                  <Text style={styles.styleCardText}>{report.best_metals.reason}</Text>
-                </View>
-              )}
-
               {report.face_shape && (
                 <View style={styles.styleCard}>
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Rostro</Text>
                   <Text style={styles.styleCardValue}>{report.face_shape}</Text>
                   <Text style={styles.styleCardText}>Guía rápida para cortes y accesorios.</Text>
+                </View>
+              )}
+
+              {report.best_metals && (
+                <View style={styles.styleCard}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Metales</Text>
+                  <Text style={styles.styleCardValue}>{report.best_metals.primary}</Text>
+                  <Text style={styles.styleCardText}>{report.best_metals.reason}</Text>
                 </View>
               )}
 
@@ -415,23 +415,10 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                   <Text style={styles.styleCardValue}>{report.glasses_analysis.frame_shape}</Text>
                   <Text style={styles.styleCardText}>{report.glasses_analysis.frame_color}. {report.glasses_analysis.tip}</Text>
                 </View>
-              )}
-
-              {showMakeup && report.makeup_tips && (
-                <View style={styles.styleCard}>
-                  <View style={styles.styleCardAccent} />
-                  <Text style={styles.styleCardLabel}>Maquillaje ideal</Text>
-                  <Text style={styles.styleCardValue}>Lo que funciona para ti</Text>
-                  <Text style={styles.styleCardText}><Text style={styles.footerBrand}>Labios: </Text> {report.makeup_tips.lipstick}</Text>
-                  <Text style={styles.styleCardText}><Text style={styles.footerBrand}>Rubor: </Text> {report.makeup_tips.blush}</Text>
-                  {/* <View style={styles.makeupList}>
-                    <Text style={styles.makeupLine}>Piensa en acabados suaves y colores que mantengan la naturalidad del rostro.</Text>
-                  </View> */}
-                </View>
-              )}
+              )}             
 
               {(report.hair_color_advice || (Array.isArray(report.hair_styles) && report.hair_styles.length > 0)) && (
-                <View style={hairCardStyle}>
+                <View style={hairCardStyle} wrap={false}>
                   <View style={styles.styleCardAccent} />
                   <Text style={styles.styleCardLabel}>Cabello</Text>
                   {report.hair_color_advice && (
@@ -441,13 +428,26 @@ export default function InfographicDocument({ report = {}, previewUrl = null, sh
                     </>
                   )}
                   {Array.isArray(report.hair_styles) && report.hair_styles.length > 0 && (
-                    <View style={styles.styleList}>
+                    <>
                       <Text style={styles.styleCardValue}>Cortes recomendados</Text>
                       {report.hair_styles.map((item, index) => (
                         <Text key={`${item.style}-${index}`} style={styles.styleListItem}>• {item.style}: {item.reason}</Text>
                       ))}
-                    </View>
+                    </>
                   )}
+                </View>
+              )}
+
+              {showMakeup && report.makeup_tips && (
+                <View style={hairCardStyle} wrap={false}>
+                  <View style={styles.styleCardAccent} />
+                  <Text style={styles.styleCardLabel}>Maquillaje ideal</Text>
+                  <Text style={styles.styleCardValue}>Lo que funciona para ti</Text>
+                  <Text style={styles.styleCardText}><Text style={styles.footerBrand}>Labios: </Text> {report.makeup_tips.lipstick}</Text>
+                  <Text style={styles.styleCardText}><Text style={styles.footerBrand}>Rubor: </Text> {report.makeup_tips.blush}</Text>
+                  {/* <View style={styles.makeupList}>
+                    <Text style={styles.makeupLine}>Piensa en acabados suaves y colores que mantengan la naturalidad del rostro.</Text>
+                  </View> */}
                 </View>
               )}
             </View>

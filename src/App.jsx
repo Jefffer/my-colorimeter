@@ -609,11 +609,11 @@ function App() {
                       {report.contrast_level && (
                         <InsightCard icon={RiContrastDrop2Line} title="Contraste" value={report.contrast_level} />
                       )}
-                      {report.best_metals && (
-                        <InsightCard icon={RiVipCrown2Line} title="Metales" value={report.best_metals.primary} description={report.best_metals.reason} />
-                      )}
                       {report.face_shape && (
                         <InsightCard icon={FiUser} title="Forma de rostro" value={report.face_shape} />
+                      )}
+                      {report.best_metals && (
+                        <InsightCard icon={RiVipCrown2Line} title="Metales" value={report.best_metals.primary} description={report.best_metals.reason} />
                       )}
                       {report.glasses_analysis?.frame_shape && (
                         <InsightCard
@@ -644,15 +644,15 @@ function App() {
                           {Array.isArray(report.hair_styles) && report.hair_styles.length > 0 && (
                             <div className="mt-4">
                               <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Cortes recomendados</span>
-                              <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div className="mt-3 space-y-2">
                                 {report.hair_styles.map((item) => (
-                                  <div
+                                  <p
                                     key={item.style}
-                                    className="rounded-[16px] border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/80"
+                                    className="text-[12px] text-white/80 leading-relaxed"
                                   >
-                                    <p className="font-semibold text-white/90">{item.style}</p>
-                                    <p className="mt-1 text-[10px] text-white/50 leading-relaxed">{item.reason}</p>
-                                  </div>
+                                    <span className="font-semibold text-white/90">{item.style}:</span>{' '}<br></br>
+                                    <span className="text-[11px] md:text-xs text-white/50 font-light">{item.reason}</span>
+                                  </p>
                                 ))}
                               </div>
                             </div>
