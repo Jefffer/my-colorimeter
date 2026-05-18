@@ -300,6 +300,19 @@ function App() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  const loadMockData = () => {
+    if (!previewUrl) {
+      setError('Sube una imagen primero para cargar los datos de prueba')
+      return
+    }
+    setIsLoading(true)
+    setError('')
+    setTimeout(() => {
+      setAnalysis(fallbackReport)
+      setIsLoading(false)
+    }, 1200)
+  }
+
   const handleGenerate = async (event) => {
     event.preventDefault()
     if (isLoading || isProcessing.current) return
@@ -443,7 +456,7 @@ function App() {
                         {/* Botón explícito para Galería */}
                         <button
                           type="button"
-                          onClick={(event) => { event.stopPropagation(); openFilePicker() }}
+                          onClick={(event) => { event.stopPropagation();openFilePicker() }}
                           className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-6 transition-colors hover:bg-white/10 hover:border-accent/30"
                         >
                           <FiUploadCloud size={28} className="text-white/50" />
@@ -489,14 +502,14 @@ function App() {
                   {!isLoading ? <><FiLoader size={18} className="hidden" /> Analizar colorimetría <FiArrowRight size={18} /></> : <><FiLoader size={18} className="animate-spin" /> Analizando...</>}
                 </button>
 
-                {/* <button
+                <button
                   type="button"
                   onClick={loadMockData}
                   disabled={!previewUrl || isLoading}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-accent/30 bg-accent/5 px-5 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Probar con datos Demo
-                </button> */}
+                </button>
 
                 <div className="mt-3">
                   <label htmlFor="show-makeup" className="flex items-center gap-3 cursor-pointer select-none">
