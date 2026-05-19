@@ -63,6 +63,33 @@ const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const allowedImageExtensions = new Set(['jpg', 'jpeg', 'png', 'webp'])
 const maxImageSizeBytes = 5 * 1024 * 1024
 
+// Normalize image pixels honoring EXIF orientation so preview and PDF keep the same direction.
+async function normalizeImageForPreview(file) {
+  try {
+    if (typeof createImageBitmap === 'function') {
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
+      const canvas = document.createElement('canvas')
+      canvas.width = bitmap.width
+      canvas.height = bitmap.height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(bitmap, 0, 0)
+      if (typeof bitmap.close === 'function') bitmap.close()
+
+      const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg'
+      return canvas.toDataURL(outputType, 0.95)
+    }
+  } catch {
+    // Fallback to FileReader output below when bitmap decoding is not available.
+  }
+
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(new Error('No se pudo leer la imagen'))
+    reader.readAsDataURL(file)
+  })
+}
+
 function safeJsonParse(input) {
   try { return JSON.parse(input) } catch { return null }
 }
@@ -215,6 +242,7 @@ function App() {
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
   const uploadSectionRef = useRef(null)
+  const resultsRef = useRef(null)
   const isProcessing = useRef(false)
 
   const report = getReportData(analysis)
@@ -242,6 +270,15 @@ function App() {
 
     return () => mediaQuery.removeEventListener('change', onChange)
   }, [])
+
+  // Auto-scroll to results on mobile when analysis completes
+  useEffect(() => {
+    if (analysis && isMobileDevice && resultsRef.current) {
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 300)
+    }
+  }, [analysis, isMobileDevice])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -290,12 +327,7 @@ function App() {
       return
     }
 
-    const nextPreviewUrl = await new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(reader.result)
-      reader.onerror = () => reject(new Error('No se pudo leer la imagen'))
-      reader.readAsDataURL(file)
-    })
+    const nextPreviewUrl = await normalizeImageForPreview(file)
 
     setPreviewUrl(nextPreviewUrl)
     setSelectedFile(file)
@@ -507,16 +539,16 @@ function App() {
               </button> */}
 
               <div className="mt-5 grid gap-3">
-                <button
+                {!analysis && <button
                   type="button"
                   onClick={handleGenerate}
                   disabled={!previewUrl || isLoading}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-accent via-[#f7dfb7] to-accent-soft px-5 py-3.5 md:py-4 text-sm md:text-base font-bold text-slate-950 shadow-[0_16px_36px_rgba(240,191,134,0.16)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {!isLoading ? <><FiLoader size={18} className="hidden" /> Analizar colorimetría <FiArrowRight size={18} /></> : <><FiLoader size={18} className="animate-spin" /> Analizando...</>}
-                </button>
-{/* 
-                <button
+                </button>}
+
+                {/* <button
                   type="button"
                   onClick={loadMockData}
                   disabled={!previewUrl || isLoading}
@@ -553,7 +585,7 @@ function App() {
             </article>
 
             {/* PANEL DERECHO: RESULTADOS */}
-            <div className="flex flex-col gap-6 md:gap-8">
+            <div ref={resultsRef} className="flex flex-col gap-6 md:gap-8">
               
               {analysis ? (
                 <>
