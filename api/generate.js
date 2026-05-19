@@ -255,23 +255,62 @@ export default async function handler(req, res) {
 		const base64Image = image.includes(',') ? image.split(',')[1] : image
 		const prompt = readFileSync(new URL('./prompt.txt', import.meta.url), 'utf8')
 		const promptHash = hashPrompt(prompt)
-		writeDebugLog({
-			type: 'prompt_loaded',
-			promptHash,
-			promptHasHairStyles: prompt.includes('"hair_styles"'),
-			promptHasGlasses: prompt.includes('"glasses_analysis"'),
-			promptHasFaceShape: prompt.includes('"face_shape"'),
-		})
+		// writeDebugLog({
+		// 	type: 'prompt_loaded',
+		// 	promptHash,
+		// 	promptHasHairStyles: prompt.includes('"hair_styles"'),
+		// 	promptHasGlasses: prompt.includes('"glasses_analysis"'),
+		// 	promptHasFaceShape: prompt.includes('"face_shape"'),
+		// })
 
 		let response
 		let usedModel = primaryModel
+		// writeDebugLog({
+		// 	type: 'model_attempt',
+		// 	stage: 'primary',
+		// 	model: primaryModel,
+		// })
 		try {
 			response = await generateWithModel(primaryModel, prompt, base64Image, mimeType)
+			writeDebugLog({
+				type: 'model_result',
+				stage: 'primary',
+				model: primaryModel,
+				ok: true,
+				responsePreview: previewText(response?.text || ''),
+			})
 		} catch (geminiError) {
+			writeDebugLog({
+				type: 'model_result',
+				stage: 'primary',
+				model: primaryModel,
+				ok: false,
+				error: previewText(geminiError instanceof Error ? geminiError.message : String(geminiError)),
+			})
+			writeDebugLog({
+				type: 'model_attempt',
+				stage: 'fallback',
+				model: fallbackModel,
+				reason: 'primary_failed',
+			})
 			try {
 				response = await generateWithModel(fallbackModel, prompt, base64Image, mimeType)
 				usedModel = fallbackModel
+				writeDebugLog({
+					type: 'model_result',
+					stage: 'fallback',
+					model: fallbackModel,
+					ok: true,
+					responsePreview: previewText(response?.text || ''),
+				})
 			} catch (fallbackError) {
+				writeDebugLog({
+					type: 'model_result',
+					stage: 'fallback',
+					model: fallbackModel,
+					ok: false,
+					error: previewText(fallbackError instanceof Error ? fallbackError.message : String(fallbackError)),
+				})
 				const rawResponse = fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
 				const payload = {
 					error: 'No se pudo generar el reporte con Gemini 3 Flash Preview ni con Gemini 2.5 Flash.',

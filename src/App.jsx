@@ -239,6 +239,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [fileAlert, setFileAlert] = useState(null)
+  const [generationAlert, setGenerationAlert] = useState(null)
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
   const uploadSectionRef = useRef(null)
@@ -341,6 +342,7 @@ function App() {
     setAnalysis(null)
     setError('')
     setFileAlert(null)
+    setGenerationAlert(null)
     isProcessing.current = false
     setIsLoading(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -366,6 +368,7 @@ function App() {
     isProcessing.current = true
     setIsLoading(true)
     setError('')
+    setGenerationAlert(null)
 
     try {
       let imageForRequest = previewUrl
@@ -395,13 +398,27 @@ function App() {
 
       let payload = {}
       try { payload = await response.json() } catch {
-        setError('Respuesta inválida del servidor')
+        setGenerationAlert({
+          title: 'Error al generar el reporte',
+          message: 'No se pudo completar el análisis porque ninguno de los modelos respondió correctamente. Intenta nuevamente en unos segundos.',
+        })
+        return
+      }
+
+      if (!response.ok) {
+        setGenerationAlert({
+          title: 'Error al generar el reporte',
+          message: payload?.error || 'No se pudo completar el análisis porque ninguno de los modelos respondió correctamente. Intenta nuevamente en unos segundos.',
+        })
         return
       }
 
       const normalized = normalizeApiReport(payload, payload?.rawResponse || '')
       if (!normalized) {
-        setError('No fue posible interpretar la respuesta.')
+        setGenerationAlert({
+          title: 'Error al generar el reporte',
+          message: 'No se pudo completar el análisis porque ninguno de los modelos respondió correctamente. Intenta nuevamente en unos segundos.',
+        })
         return
       }
 
@@ -412,7 +429,10 @@ function App() {
 
       setAnalysis(normalized)
     } catch (requestError) {
-      setError(requestError.message || 'Hubo un problema al generar el reporte')
+      setGenerationAlert({
+        title: 'Error al generar el reporte',
+        message: requestError.message || 'No se pudo completar el análisis porque ninguno de los modelos respondió correctamente. Intenta nuevamente en unos segundos.',
+      })
     } finally {
       setIsLoading(false)
       isProcessing.current = false
@@ -422,6 +442,7 @@ function App() {
   return (
     <main className="text-text">
       {fileAlert && <AlertModal title={fileAlert.title} message={fileAlert.message} onAccept={() => setFileAlert(null)} />}
+      {generationAlert && <AlertModal title={generationAlert.title} message={generationAlert.message} onAccept={() => setGenerationAlert(null)} />}
 
       <LoadingOverlay
         isVisible={isLoading}
